@@ -27,17 +27,18 @@ public class OnDrawGizmo : MonoBehaviour
         ///
         /// 对于其他宽高比，我们可以根据以下情况推算：
         /// - 当宽高比为2:1时，左侧边距占比 leftMargin = 0.21875 - (0.5625 / 2)
-        /// - 当宽高比为1:2时，左侧边距占比 leftMargin = 0.21875 + (0.5625 / 2)
+        /// - 当宽高比为1:2时，左侧边距占比 leftMargin = 0.21875 + (0.5625 / 4)
         ///
         /// 综合上述情况，再引入图像宽高比picAspect，线框宽度占比随picAspect变化，两边间距总的占比为：1 - 1 / 分辨率比例 * 图像宽高比
         /// 得出一个通用公式来计算边距：
         /// margin = (1 - 1 / 分辨率比例 * 图像宽高比) * 0.5
 
-        float picAspect = width / height;
+        float picAspect = (float)width / (float)height;
         float screenAspect = m_Camera.aspect;  // 16:9 的比例为 1.777778，4:3 的比例为 1.333333
 
-        float leftMargin = (1 - 1 / screenAspect * picAspect) * 0.5f;
-        float rightMargin = 1 - leftMargin;
+        float leftMargin, rightMargin;
+        leftMargin = (1 - 1 / screenAspect * picAspect) * 0.5f;
+        rightMargin = 1 - leftMargin;
 
         // 计算摄像机视口的边界
         float nearClipPlane = m_Camera.nearClipPlane;

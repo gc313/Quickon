@@ -1,136 +1,72 @@
 using System;
-using System.IO;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-
-public class Quickon : EditorWindow
+using Quickon.Core;
+namespace Quickon.Editor
 {
-    private ObjectField cameraSelector;
-    public Camera m_Camera;
-    public TextField picWeight;
-    public TextField picHeight;
-
-
-    [MenuItem("Window/Quickon")]
-    public static void ShowExample()
+    public class Quickon : EditorWindow
     {
-        Quickon wnd = GetWindow<Quickon>();
-        wnd.titleContent = new GUIContent("Quickon");
-    }
+        private CaptureHelper captureHelper;
+        public TextField picWeight;
+        public TextField picHeight;
 
-    public void CreateGUI()
-    {
-        VisualElement root = rootVisualElement;
 
-        cameraSelector = new ObjectField
+        [MenuItem("Window/Quickon")]
+        public static void ShowExample()
         {
-            objectType = typeof(Camera),
-            label = "Select Camera"
-        };
-
-        picWeight = new TextField
-        {
-            label = "Picture Width",
-            value = $"{Config.PicWeight}"
-        };
-
-        picHeight = new TextField
-        {
-            label = "Picture Height",
-            value = $"{Config.PicHeight}"
-        };
-
-
-
-        Button captureButton = new Button(CapturePicture);
-        captureButton.text = "Capture Picture";
-
-        root.Add(cameraSelector);
-        root.Add(picWeight);
-        root.Add(picHeight);
-        root.Add(captureButton);
-
-        // 初始化摄像机
-        if (cameraSelector.value != null)
-        {
-            m_Camera = cameraSelector.value as Camera;
+            Quickon wnd = GetWindow<Quickon>();
+            wnd.titleContent = new GUIContent("Quickon");
         }
 
-        // 监听摄像机选择变化
-        cameraSelector.RegisterCallback<ChangeEvent<UnityEngine.Object>>(e =>
+        private void OnEnable()
         {
-            m_Camera = e.newValue as Camera;
-        });
-
-        // 监听图片宽度变化
-        picWeight.RegisterCallback<ChangeEvent<string>>(e =>
-        {
-            if (int.TryParse(e.newValue, out int newPicWeight))
-            {
-                Config.PicWeight = newPicWeight;
-            }
-        });
-
-        // 监听图片高度变化
-        picHeight.RegisterCallback<ChangeEvent<string>>(e =>
-        {
-            if (int.TryParse(e.newValue, out int newPicHeight))
-            {
-                Config.PicHeight = newPicHeight;
-            }
-        });
-    }
-
-    public void CapturePicture()
-    {
-        if (m_Camera == null)
-        {
-            m_Camera = Camera.main; // 尝试在编辑器模式下获取主摄像机
-            if (m_Camera == null)
-            {
-                return;
-            }
+            // 初始化 captureManager
+            captureHelper = new CaptureHelper();
         }
 
-        int width = Config.PicWeight;
-        int height = Config.PicHeight;
+        public void CreateGUI()
+        {
+            VisualElement root = rootVisualElement;
 
-        // 创建一个RenderTexture
-        RenderTexture rt = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
+            picWeight = new TextField
+            {
+                label = "Picture Width",
+                value = $"{Config.PicWeight}"
+            };
 
-        // 设置摄像机的目标纹理
-        m_Camera.targetTexture = rt;
+            picHeight = new TextField
+            {
+                label = "Picture Height",
+                value = $"{Config.PicHeight}"
+            };
 
-        // 渲染摄像机
-        m_Camera.Render();
-        RenderTexture.active = rt;
+            Button captureButton = new Button(captureHelper.CapturePicture);
+            captureButton.text = "Capture Picture";
 
-        // 创建一个Texture2D对象来读取像素
-        Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            root.Add(picWeight);
+            root.Add(picHeight);
+            root.Add(captureButton);
 
-        // 确保读取区域不超过RenderTexture的边界
-        Rect readRect = new Rect(0, 0, width, height);
+            // 监听图片宽度变化
+            picWeight.RegisterCallback<ChangeEvent<string>>(e =>
+            {
+                if (int.TryParse(e.newValue, out int newPicWeight))
+                {
+                    Config.PicWeight = newPicWeight;
+                }
+            });
 
-        texture.ReadPixels(readRect, 0, 0);
-        texture.Apply();
+            // 监听图片高度变化
+            picHeight.RegisterCallback<ChangeEvent<string>>(e =>
+            {
+                if (int.TryParse(e.newValue, out int newPicHeight))
+                {
+                    Config.PicHeight = newPicHeight;
+                }
+            });
+        }
 
-        // 将Texture2D对象转换为PNG格式的字节数组
-        byte[] bytes = texture.EncodeToPNG();
-
-        // 保存到文件
-        string path = "E:/Quickon.png";
-        File.WriteAllBytes(path, bytes);
-
-        // 清理
-        m_Camera.targetTexture = null;
-        RenderTexture.active = null;
-
-        // 使用DestroyImmediate来销毁对象
-        DestroyImmediate(texture);
-        DestroyImmediate(rt);
-
-        Debug.Log("Capture Success!");
     }
 }
