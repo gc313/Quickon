@@ -1,12 +1,45 @@
 using UnityEngine;
 using System.IO;
+using System.Collections.Generic;
 namespace Quickon.Core
 {
     public class CaptureHelper
     {
         private Camera m_Camera;
+        private int m_CaptureCount;
 
-        public void CapturePicture()
+        /// <summary>
+        /// 放置对象并拍照
+        /// </summary>
+        /// <param name="objects"></param>
+        public void PlaceObjects(List<CaptureObject> objects)
+        {
+            foreach (var item in objects)
+            {
+                // 实例化预制体并添加到当前场景中
+                GameObject instance = Object.Instantiate(item.gameObject);
+                if (instance != null)
+                {
+                    instance.transform.position = item.gameObject.transform.position; // 可以设置位置
+                    instance.transform.rotation = item.gameObject.transform.rotation; // 可以设置旋转
+                    instance.transform.localScale = item.gameObject.transform.localScale; // 可以设置缩放
+                }
+                else
+                {
+                    Debug.LogError("Failed to instantiate object: " + item.gameObject.name);
+                }
+
+                CapturePicture(item.gameObject.name);
+                Object.DestroyImmediate(instance);
+            }
+            Debug.Log("Capture Done!");
+        }
+
+        /// <summary>
+        /// 拍照
+        /// </summary>
+        /// <param name="name"></param>
+        public void CapturePicture(string name)
         {
             if (m_Camera == null)
             {
@@ -43,7 +76,8 @@ namespace Quickon.Core
             byte[] bytes = texture.EncodeToPNG();
 
             // 保存到文件
-            string path = "E:/Quickon.png";
+            m_CaptureCount++;
+            string path = $"E:/{name}{m_CaptureCount}.png";
             File.WriteAllBytes(path, bytes);
 
             // 清理
@@ -53,8 +87,6 @@ namespace Quickon.Core
             // 使用DestroyImmediate来销毁对象
             Object.DestroyImmediate(texture);
             Object.DestroyImmediate(rt);
-
-            Debug.Log("Capture Success!");
         }
     }
 }

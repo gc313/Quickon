@@ -31,9 +31,17 @@ namespace Quickon.Editor
         public void CreateGUI()
         {
             VisualElement root = rootVisualElement;
-
             VisualElement element = m_VisualTreeAsset.Instantiate();
-            root.Add(element);
+
+            CaptureObjSO captureObject = CreateInstance<CaptureObjSO>();
+            var inspectorElement = new InspectorElement();
+            var serializedObject = new SerializedObject(captureObject);
+            inspectorElement.Bind(serializedObject);
+
+            var box = new Box();
+            root.Add(box);
+            box.Add(inspectorElement);
+            box.Add(element);
 
             imgWeight = element.Q<IntegerField>("Image_Weight");
             imgHeight = element.Q<IntegerField>("Image_Height");
@@ -52,7 +60,7 @@ namespace Quickon.Editor
             });
 
             // 监听截图按钮点击事件
-            captureButton.clicked += () => { captureHelper.CapturePicture(); };
+            captureButton.clicked += () => { captureHelper.PlaceObjects(captureObject.CaptureObjects); };
         }
 
     }
