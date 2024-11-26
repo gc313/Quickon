@@ -4,13 +4,16 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Quickon.Core;
+using System.Collections.Generic;
 namespace Quickon.Editor
 {
     public class Quickon : EditorWindow
     {
+        [SerializeField] private VisualTreeAsset m_VisualTreeAsset = default;
         private CaptureHelper captureHelper;
-        public TextField picWeight;
-        public TextField picHeight;
+        public IntegerField imgWeight;
+        public IntegerField imgHeight;
+        public Button captureButton;
 
 
         [MenuItem("Window/Quickon")]
@@ -22,7 +25,6 @@ namespace Quickon.Editor
 
         private void OnEnable()
         {
-            // 初始化 captureManager
             captureHelper = new CaptureHelper();
         }
 
@@ -30,42 +32,27 @@ namespace Quickon.Editor
         {
             VisualElement root = rootVisualElement;
 
-            picWeight = new TextField
-            {
-                label = "Picture Width",
-                value = $"{Config.PicWeight}"
-            };
+            VisualElement element = m_VisualTreeAsset.Instantiate();
+            root.Add(element);
 
-            picHeight = new TextField
-            {
-                label = "Picture Height",
-                value = $"{Config.PicHeight}"
-            };
-
-            Button captureButton = new Button(captureHelper.CapturePicture);
-            captureButton.text = "Capture Picture";
-
-            root.Add(picWeight);
-            root.Add(picHeight);
-            root.Add(captureButton);
+            imgWeight = element.Q<IntegerField>("Image_Weight");
+            imgHeight = element.Q<IntegerField>("Image_Height");
+            captureButton = element.Q<Button>("Capture_Image");
 
             // 监听图片宽度变化
-            picWeight.RegisterCallback<ChangeEvent<string>>(e =>
+            imgWeight.RegisterCallback<ChangeEvent<int>>(e =>
             {
-                if (int.TryParse(e.newValue, out int newPicWeight))
-                {
-                    Config.PicWeight = newPicWeight;
-                }
+                Config.ImgWeight = e.newValue;
             });
 
             // 监听图片高度变化
-            picHeight.RegisterCallback<ChangeEvent<string>>(e =>
+            imgHeight.RegisterCallback<ChangeEvent<int>>(e =>
             {
-                if (int.TryParse(e.newValue, out int newPicHeight))
-                {
-                    Config.PicHeight = newPicHeight;
-                }
+                Config.ImgHeight = e.newValue;
             });
+
+            // 监听截图按钮点击事件
+            captureButton.clicked += () => { captureHelper.CapturePicture(); };
         }
 
     }

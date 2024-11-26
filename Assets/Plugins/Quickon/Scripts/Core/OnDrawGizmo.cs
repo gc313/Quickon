@@ -16,8 +16,8 @@ public class OnDrawGizmo : MonoBehaviour
             }
         }
 
-        int width = Config.PicWeight;
-        int height = Config.PicHeight;
+        int width = Config.ImgWeight;
+        int height = Config.ImgHeight;
 
         /// 对于不同宽高比的图像，我们需要计算其在固定高度比例为1的情况下，线框的宽度比例。
         /// 以常见的16:9比例为例，其宽高比约为1.7777。在这种情况下，高度比例为1的长度相当于宽度比例为0.5625的长度（即1 / 1.7777）。

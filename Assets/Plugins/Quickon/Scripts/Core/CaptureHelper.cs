@@ -17,8 +17,8 @@ namespace Quickon.Core
                 }
             }
 
-            int width = Config.PicWeight;
-            int height = Config.PicHeight;
+            int width = Config.ImgWeight;
+            int height = Config.ImgHeight;
 
             // 创建一个RenderTexture
             RenderTexture rt = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
