@@ -4,13 +4,21 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Quickon.Core;
-using System.Collections.Generic;
+using Unity.Cinemachine;
+using Unity.VisualScripting;
 
 namespace Quickon.Editor
 {
     public class Quickon : EditorWindow
     {
         [SerializeField] private VisualTreeAsset visualTreeAsset = default; // 可视化树资产
+        private VisualElement root;
+        private VisualElement element;
+
+        private CaptureObjSO captureObject;
+        private CinemachineCamera camera;
+        private ObjectField cameraField;
+
         private CaptureHelper captureHelper; // 截图辅助类实例
         private IntegerField imageWidthField; // 图片宽度输入框
         private IntegerField imageHeightField; // 图片高度输入框
@@ -33,18 +41,13 @@ namespace Quickon.Editor
 
         public void CreateGUI()
         {
-            VisualElement root = rootVisualElement; // 获取根视觉元素
-            VisualElement element = visualTreeAsset.Instantiate(); // 实例化可视化树资产
+            root = rootVisualElement; // 获取根视觉元素
 
-            CaptureObjSO captureObject = CreateInstance<CaptureObjSO>(); // 创建捕获对象实例
-            var inspectorElement = new InspectorElement(); // 创建检查器元素
-            var serializedObject = new SerializedObject(captureObject); // 序列化捕获对象
-            inspectorElement.Bind(serializedObject); // 绑定序列化对象到检查器元素
+            DrawCameraField();
+            DrawImageSizeField();
+            DrawCaptureObjectList();
 
-            var box = new Box(); // 创建一个盒子容器
-            root.Add(box); // 将盒子容器添加到根视觉元素
-            box.Add(inspectorElement); // 将检查器元素添加到盒子容器
-            box.Add(element); // 将实例化的可视化树资产添加到盒子容器
+
 
             imageWidthField = element.Q<IntegerField>("Image_Weight"); // 获取图片宽度输入框
             imageHeightField = element.Q<IntegerField>("Image_Height"); // 获取图片高度输入框
@@ -70,7 +73,8 @@ namespace Quickon.Editor
             previewToggle.RegisterCallback<ChangeEvent<bool>>(e =>
             {
                 Config.IsPreview = e.newValue; // 更新配置中的预览状态
-                captureHelper.ToggleObjectPreview(captureObject.CaptureObjects, Config.IsPreview); // 切换预览状态
+                camera = cameraField.value.GetComponent<CinemachineCamera>();
+                captureHelper.ToggleObjectPreview(camera, captureObject.CaptureObjects, Config.IsPreview); // 切换预览状态
             });
 
             // 监听上一个、下一个按钮点击事件
@@ -78,7 +82,32 @@ namespace Quickon.Editor
             nextPreviewButton.clicked += () => { captureHelper.NextObjectPreview(captureObject.CaptureObjects, Config.IsPreview); }; // 切换到下一个预览对象
 
             // 监听截图按钮点击事件
-            captureButton.clicked += () => { captureHelper.PlaceObjectsAndCapture(captureObject.CaptureObjects); }; // 捕获当前对象并截图
+            captureButton.clicked += () =>
+            {
+                camera = cameraField.value.GetComponent<CinemachineCamera>();
+                captureHelper.PlaceObjectsAndCapture(camera, captureObject.CaptureObjects);
+            };
+        }
+
+        private void DrawImageSizeField()
+        {
+            element = visualTreeAsset.Instantiate(); // 实例化可视化树资产
+            root.Add(element);
+        }
+
+        private void DrawCameraField()
+        {
+            cameraField = new ObjectField("Camera");
+            root.Add(cameraField);
+        }
+
+        private void DrawCaptureObjectList()
+        {
+            captureObject = CreateInstance<CaptureObjSO>(); // 创建捕获对象实例
+            var inspectorElement = new InspectorElement(); // 创建检查器元素
+            var serializedObject = new SerializedObject(captureObject); // 序列化捕获对象
+            inspectorElement.Bind(serializedObject); // 绑定序列化对象到检查器元素
+            root.Add(inspectorElement);
         }
     }
 }

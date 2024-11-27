@@ -1,0 +1,9 @@
+VisualElement > VisualElement > #Capture_Button {
+    margin-left: 20px;
+    margin-right: 20px;
+    height: 50px;
+}
+
+VisualElement > VisualElement > VisualElement > Button {
+    width: 40%;
+}
