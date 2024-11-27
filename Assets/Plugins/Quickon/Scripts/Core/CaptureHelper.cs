@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System;
 using Unity.Cinemachine;
+using Unity.VisualScripting;
 
 
 namespace Quickon.Core
@@ -15,12 +16,14 @@ namespace Quickon.Core
         private int captureCount;
         private int currentPreviewIndex;
         private GameObject previewObject;
+        private DataSourceSO dataSource;
 
         /// <summary>
         /// 初始化摄像机
         /// </summary>
-        public void InitializeCamera(CinemachineCamera camera)
+        public void InitializeCamera(UnityEngine.Object cameraObj, DataSourceSO dataSource)
         {
+            this.dataSource = dataSource;
             if (mainCamera == null)
             {
                 mainCamera = Camera.main; // 尝试在编辑器模式下获取主摄像机
@@ -29,8 +32,9 @@ namespace Quickon.Core
                     Debug.LogError("Main camera not found!");
                 }
             }
+            camera = cameraObj.GetComponent<CinemachineCamera>();
+            orbitalFollow = cameraObj.GetComponent<CinemachineOrbitalFollow>();
 
-            this.camera = camera;
             Debug.Log("Camera Initialized!");
 
         }

@@ -6,14 +6,14 @@ using UnityEngine.UIElements;
 using Quickon.Core;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
-using Unity.Properties;
 
 namespace Quickon.Editor
 {
     public class Quickon : EditorWindow
     {
-        [SerializeField] private VisualTreeAsset visualTreeAsset = default; // 可视化树资产
+        [SerializeField] private VisualTreeAsset visualTreeAsset = default;
         [SerializeField] private VisualTreeAsset cameraPanel = default;
+        [SerializeField] private DataSourceSO dataSourceSO;
         private VisualElement root, element, cameraPanelElement;
 
         private CaptureObjSO captureObject;
@@ -38,7 +38,7 @@ namespace Quickon.Editor
 
         private void OnEnable()
         {
-            captureHelper = new CaptureHelper(); // 初始化截图辅助类
+            captureHelper = new CaptureHelper();
         }
 
         public void CreateGUI()
@@ -63,6 +63,8 @@ namespace Quickon.Editor
             nextPreviewButton = element.Q<Button>("Next_Preview_Button");
             autoCaptureButton = element.Q<Button>("AutoCapture_Button");
             manualCaptureButton = element.Q<Button>("ManualCapture_Button");
+
+
 
             // 监听图片宽度变化
             imageWidthField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgWeight = e.newValue; });
@@ -104,51 +106,37 @@ namespace Quickon.Editor
             cameraField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(e =>
             {
                 camera = e.newValue.GetComponent<CinemachineCamera>();
-                // cameraPanelElement.dataSource = camera.Lens;
 
-                // apparentSizeField.SetBinding("value", new DataBinding
-                // {
-                //     dataSourcePath = new PropertyPath(nameof(camera.Lens.OrthographicSize)),
-                //     bindingMode = BindingMode.ToSource
-                // });
-
-                // apparentSizeSlider.SetBinding("value", new DataBinding
-                // {
-                //     dataSourcePath = new PropertyPath(nameof(camera.Lens.OrthographicSize)),
-                //     bindingMode = BindingMode.ToSource
-                // });
-
-                // // 添加事件监听器以更新数据源
-                // apparentSizeField.RegisterCallback<ChangeEvent<float>>(e =>
-                // {
-                //     camera.Lens.OrthographicSize = e.newValue;
-                // });
-
-                // apparentSizeSlider.RegisterCallback<ChangeEvent<float>>(e =>
-                // {
-                //     camera.Lens.OrthographicSize = e.newValue;
-                // });
+                apparentSizeField.RegisterValueChangedCallback(e =>
+                {
+                    camera.Lens.OrthographicSize = dataSourceSO.OrthographicSize;
+                });
+                apparentSizeSlider.RegisterValueChangedCallback(e =>
+                {
+                    camera.Lens.OrthographicSize = dataSourceSO.OrthographicSize;
+                });
 
                 orbitalFollow = e.newValue.GetComponent<CinemachineOrbitalFollow>();
+                horizontalAxisField.RegisterValueChangedCallback(e =>
+                {
+                    orbitalFollow.HorizontalAxis.Value = dataSourceSO.HorizontalAxis;
+                });
+                horizontalAxisSlider.RegisterValueChangedCallback(e =>
+                {
+                    orbitalFollow.HorizontalAxis.Value = dataSourceSO.HorizontalAxis;
+                });
+                verticalAxisField.RegisterValueChangedCallback(e =>
+                {
+                    orbitalFollow.VerticalAxis.Value = dataSourceSO.VerticalAxis;
+                });
+                verticalAxisSlider.RegisterValueChangedCallback(e =>
+                {
+                    orbitalFollow.VerticalAxis.Value = dataSourceSO.VerticalAxis;
+                });
 
-                // horizontalAxisField.SetBinding("value", new DataBinding
-                // {
-                //     dataSource = orbitalFollow.HorizontalAxis,
-                //     dataSourcePath = new PropertyPath(nameof(orbitalFollow.HorizontalAxis.Value)),
-                //     bindingMode = BindingMode.ToSource
-                // });
-                // horizontalAxisSlider.SetBinding("value", new DataBinding
-                // {
-                //     dataSource = orbitalFollow.HorizontalAxis,
-                //     dataSourcePath = new PropertyPath(nameof(orbitalFollow.HorizontalAxis.Value)),
-                //     bindingMode = BindingMode.ToSource
-                // });
-
-                // verticalAxisField.value = orbitalFollow.VerticalAxis.Value;
-                // verticalAxisSlider.value = orbitalFollow.VerticalAxis.Value;
-
-                captureHelper.InitializeCamera(camera);
+                captureHelper.InitializeCamera(e.newValue, dataSourceSO);
             });
+
         }
 
         private void DrawCaptureObjectList()
