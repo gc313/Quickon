@@ -6,26 +6,28 @@ using UnityEngine.UIElements;
 using Quickon.Core;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
+using Unity.Properties;
 
 namespace Quickon.Editor
 {
     public class Quickon : EditorWindow
     {
         [SerializeField] private VisualTreeAsset visualTreeAsset = default; // 可视化树资产
-        private VisualElement root;
-        private VisualElement element;
+        [SerializeField] private VisualTreeAsset cameraPanel = default;
+        private VisualElement root, element, cameraPanelElement;
 
         private CaptureObjSO captureObject;
         private CinemachineCamera camera;
+        private CinemachineOrbitalFollow orbitalFollow;
         private ObjectField cameraField;
 
-        private CaptureHelper captureHelper; // 截图辅助类实例
-        private IntegerField imageWidthField; // 图片宽度输入框
-        private IntegerField imageHeightField; // 图片高度输入框
-        private Toggle previewToggle; // 预览开关
-        private Button previousPreviewButton; // 上一个预览按钮
-        private Button nextPreviewButton; // 下一个预览按钮
-        private Button captureButton; // 截图按钮
+        private FloatField apparentSizeField, horizontalAxisField, verticalAxisField;
+        private Slider apparentSizeSlider, horizontalAxisSlider, verticalAxisSlider;
+
+        private CaptureHelper captureHelper;
+        private IntegerField imageWidthField, imageHeightField;
+        private Toggle previewToggle;
+        private Button previousPreviewButton, nextPreviewButton, autoCaptureButton, manualCaptureButton;
 
         [MenuItem("Window/Quickon")]
         public static void ShowExample()
@@ -46,35 +48,32 @@ namespace Quickon.Editor
             DrawCameraField();
             DrawImageSizeField();
             DrawCaptureObjectList();
+        }
 
+        private void DrawImageSizeField()
+        {
+            element = visualTreeAsset.Instantiate();
+            root.Add(element);
 
+            imageWidthField = element.Q<IntegerField>("Image_Weight");
+            imageHeightField = element.Q<IntegerField>("Image_Height");
 
-            imageWidthField = element.Q<IntegerField>("Image_Weight"); // 获取图片宽度输入框
-            imageHeightField = element.Q<IntegerField>("Image_Height"); // 获取图片高度输入框
-
-            previewToggle = element.Q<Toggle>("Preview_Toggle"); // 获取预览开关
-            previousPreviewButton = element.Q<Button>("Previous_Preview_Button"); // 获取上一个预览按钮
-            nextPreviewButton = element.Q<Button>("Next_Preview_Button"); // 获取下一个预览按钮
-            captureButton = element.Q<Button>("Capture_Button"); // 获取截图按钮
+            previewToggle = element.Q<Toggle>("Preview_Toggle");
+            previousPreviewButton = element.Q<Button>("Previous_Preview_Button");
+            nextPreviewButton = element.Q<Button>("Next_Preview_Button");
+            autoCaptureButton = element.Q<Button>("AutoCapture_Button");
+            manualCaptureButton = element.Q<Button>("ManualCapture_Button");
 
             // 监听图片宽度变化
-            imageWidthField.RegisterCallback<ChangeEvent<int>>(e =>
-            {
-                Config.ImgWeight = e.newValue; // 更新配置中的图片宽度
-            });
-
+            imageWidthField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgWeight = e.newValue; });
             // 监听图片高度变化
-            imageHeightField.RegisterCallback<ChangeEvent<int>>(e =>
-            {
-                Config.ImgHeight = e.newValue; // 更新配置中的图片高度
-            });
+            imageHeightField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgHeight = e.newValue; });
 
             // 监听预览开关变化
             previewToggle.RegisterCallback<ChangeEvent<bool>>(e =>
             {
                 Config.IsPreview = e.newValue; // 更新配置中的预览状态
-                camera = cameraField.value.GetComponent<CinemachineCamera>();
-                captureHelper.ToggleObjectPreview(camera, captureObject.CaptureObjects, Config.IsPreview); // 切换预览状态
+                captureHelper.ToggleObjectPreview(captureObject.CaptureObjects, Config.IsPreview); // 切换预览状态
             });
 
             // 监听上一个、下一个按钮点击事件
@@ -82,23 +81,74 @@ namespace Quickon.Editor
             nextPreviewButton.clicked += () => { captureHelper.NextObjectPreview(captureObject.CaptureObjects, Config.IsPreview); }; // 切换到下一个预览对象
 
             // 监听截图按钮点击事件
-            captureButton.clicked += () =>
-            {
-                camera = cameraField.value.GetComponent<CinemachineCamera>();
-                captureHelper.PlaceObjectsAndCapture(camera, captureObject.CaptureObjects);
-            };
-        }
-
-        private void DrawImageSizeField()
-        {
-            element = visualTreeAsset.Instantiate(); // 实例化可视化树资产
-            root.Add(element);
+            autoCaptureButton.clicked += () => { captureHelper.PlaceObjectsAndCapture(captureObject.CaptureObjects); };
+            manualCaptureButton.clicked += () => { captureHelper.CaptureImage(); };
         }
 
         private void DrawCameraField()
         {
             cameraField = new ObjectField("Camera");
             root.Add(cameraField);
+
+            cameraPanelElement = cameraPanel.Instantiate();
+            root.Add(cameraPanelElement);
+
+            apparentSizeField = cameraPanelElement.Q<FloatField>("ApparentSize_Value");
+            horizontalAxisField = cameraPanelElement.Q<FloatField>("HorizontalAxis_Value");
+            verticalAxisField = cameraPanelElement.Q<FloatField>("VerticalAxis_Value");
+            apparentSizeSlider = cameraPanelElement.Q<Slider>("ApparentSize_Slider");
+            horizontalAxisSlider = cameraPanelElement.Q<Slider>("HorizontalAxis_Slider");
+            verticalAxisSlider = cameraPanelElement.Q<Slider>("VerticalAxis_Slider");
+
+            // 监听相机字段变化
+            cameraField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(e =>
+            {
+                camera = e.newValue.GetComponent<CinemachineCamera>();
+                // cameraPanelElement.dataSource = camera.Lens;
+
+                // apparentSizeField.SetBinding("value", new DataBinding
+                // {
+                //     dataSourcePath = new PropertyPath(nameof(camera.Lens.OrthographicSize)),
+                //     bindingMode = BindingMode.ToSource
+                // });
+
+                // apparentSizeSlider.SetBinding("value", new DataBinding
+                // {
+                //     dataSourcePath = new PropertyPath(nameof(camera.Lens.OrthographicSize)),
+                //     bindingMode = BindingMode.ToSource
+                // });
+
+                // // 添加事件监听器以更新数据源
+                // apparentSizeField.RegisterCallback<ChangeEvent<float>>(e =>
+                // {
+                //     camera.Lens.OrthographicSize = e.newValue;
+                // });
+
+                // apparentSizeSlider.RegisterCallback<ChangeEvent<float>>(e =>
+                // {
+                //     camera.Lens.OrthographicSize = e.newValue;
+                // });
+
+                orbitalFollow = e.newValue.GetComponent<CinemachineOrbitalFollow>();
+
+                // horizontalAxisField.SetBinding("value", new DataBinding
+                // {
+                //     dataSource = orbitalFollow.HorizontalAxis,
+                //     dataSourcePath = new PropertyPath(nameof(orbitalFollow.HorizontalAxis.Value)),
+                //     bindingMode = BindingMode.ToSource
+                // });
+                // horizontalAxisSlider.SetBinding("value", new DataBinding
+                // {
+                //     dataSource = orbitalFollow.HorizontalAxis,
+                //     dataSourcePath = new PropertyPath(nameof(orbitalFollow.HorizontalAxis.Value)),
+                //     bindingMode = BindingMode.ToSource
+                // });
+
+                // verticalAxisField.value = orbitalFollow.VerticalAxis.Value;
+                // verticalAxisSlider.value = orbitalFollow.VerticalAxis.Value;
+
+                captureHelper.InitializeCamera(camera);
+            });
         }
 
         private void DrawCaptureObjectList()

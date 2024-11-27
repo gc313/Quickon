@@ -1,0 +1,15 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Plugins/Quickon/Scripts/Editor/CameraPanel.uss?fileID=7433441132597879392&amp;guid=dfce5314a70885441aa2889d32b1dfd2&amp;type=3#CameraPanel" />
+    <engine:VisualElement style="flex-grow: 0; height: 50px; align-self: auto;">
+        <engine:FloatField label="Apparent Size" value="-360" max-length="360" name="ApparentSize_Value" />
+        <engine:Slider value="42" high-value="360" name="ApparentSize_Slider" low-value="-360" style="align-content: flex-start;" />
+    </engine:VisualElement>
+    <engine:VisualElement style="flex-grow: 0; height: 50px; align-self: auto;">
+        <engine:FloatField value="-360" max-length="360" label="Horizontal Axis" name="HorizontalAxis_Value" />
+        <engine:Slider value="42" high-value="360" name="HorizontalAxis_Slider" low-value="-360" />
+    </engine:VisualElement>
+    <engine:VisualElement style="flex-grow: 0; height: 50px; align-self: auto; align-content: auto;">
+        <engine:FloatField value="-360" max-length="360" label="Vertical Axis" name="VerticalAxis_Value" />
+        <engine:Slider value="42" high-value="360" name="VerticalAxis_Slider" low-value="-360" />
+    </engine:VisualElement>
+</engine:UXML>

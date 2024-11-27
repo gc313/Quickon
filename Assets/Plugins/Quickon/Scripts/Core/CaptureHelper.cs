@@ -29,17 +29,9 @@ namespace Quickon.Core
                     Debug.LogError("Main camera not found!");
                 }
             }
-            // orbitalFollow = mainCamera.GetComponent<CinemachineOrbitalFollow>();
-            // if (orbitalFollow == null)
-            // {
-            //     Debug.LogError("CinemachineOrbitalFollow component not found!");
-            // }
-            // camera = mainCamera.GetComponent<CinemachineCamera>();
-            // if (camera == null)
-            // {
-            //     Debug.LogError("CinemachineCamera component not found!");
-            // }
+
             this.camera = camera;
+            Debug.Log("Camera Initialized!");
 
         }
 
@@ -47,9 +39,9 @@ namespace Quickon.Core
         /// 放置对象并拍照
         /// </summary>
         /// <param name="captureObjects">要拍摄的对象列表</param>
-        public void PlaceObjectsAndCapture(CinemachineCamera camera, List<CaptureObject> captureObjects)
+        public void PlaceObjectsAndCapture(List<CaptureObject> captureObjects)
         {
-            InitializeCamera(camera);
+            captureCount = 0;
             foreach (var item in captureObjects)
             {
                 if (item.gameObject == null)
@@ -59,7 +51,7 @@ namespace Quickon.Core
                 else
                 {
                     InstantiateObjectToScene(item.gameObject);
-                    CaptureImage(item.gameObject.name);
+                    CaptureImage();
                     DestroyObjectFromScene(previewObject);
                 }
             }
@@ -71,13 +63,12 @@ namespace Quickon.Core
         /// </summary>
         /// <param name="captureObjects">要预览的对象列表</param>
         /// <param name="isPreview">是否开启预览</param>
-        public void ToggleObjectPreview(CinemachineCamera camera, List<CaptureObject> captureObjects, bool isPreview)
+        public void ToggleObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
         {
             if (captureObjects == null || captureObjects.Count == 0) return;
 
             if (isPreview)
             {
-                InitializeCamera(camera);
                 for (int index = 0; index < captureObjects.Count; index++)
                 {
                     if (captureObjects[index].gameObject == null)
@@ -140,10 +131,6 @@ namespace Quickon.Core
         {
             if (obj == null) return;
             previewObject = UnityEngine.Object.Instantiate(obj);
-            previewObject.transform.position = obj.transform.position; // 设置位置
-            previewObject.transform.rotation = obj.transform.rotation; // 设置旋转
-            previewObject.transform.localScale = obj.transform.localScale; // 设置缩放
-
             CameraLookAtTarget(previewObject.transform);
         }
 
@@ -167,8 +154,9 @@ namespace Quickon.Core
         /// 拍照
         /// </summary>
         /// <param name="name">图片名称</param>
-        public void CaptureImage(string name)
+        public void CaptureImage()
         {
+            if (previewObject == null) return;
             int width = Config.ImgWeight;
             int height = Config.ImgHeight;
 
@@ -196,7 +184,7 @@ namespace Quickon.Core
 
             // 保存到文件
             captureCount++;
-            string path = $"E:/{name}{captureCount}.png";
+            string path = $"E:/{previewObject.name}{captureCount}.png";
             File.WriteAllBytes(path, bytes);
 
             // 清理
