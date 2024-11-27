@@ -1,17 +1,26 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Plugins/Quickon/Scripts/Editor/Quickon.uss?fileID=7433441132597879392&amp;guid=adda769f5ccb42a4ca9586306d9032f3&amp;type=3#Quickon" />
     <engine:VisualElement style="flex-grow: 1;">
-        <engine:VisualElement style="flex-grow: 1;">
+        <engine:VisualElement style="flex-grow: 1; display: none;">
             <engine:RadioButton label="Radio Button" />
             <engine:RadioButton label="Radio Button" />
             <engine:Slider label="Slider" value="42" high-value="100" />
         </engine:VisualElement>
-        <engine:VisualElement style="flex-grow: 1; flex-direction: column;">
+        <engine:VisualElement style="flex-grow: 0; flex-direction: column;">
             <engine:IntegerField label="Image Weight" value="128" name="Image_Weight" />
             <engine:IntegerField label="Image Height" value="128" name="Image_Height" />
         </engine:VisualElement>
-        <engine:VisualElement style="flex-grow: 1;">
-            <engine:Button text="Capture Image" name="Capture_Image" />
+        <engine:VisualElement style="flex-grow: 0;">
+            <engine:VisualElement style="flex-grow: 0;">
+                <engine:Toggle label="Preview" name="Preview_Toggle" />
+            </engine:VisualElement>
+            <engine:VisualElement style="flex-grow: 0; flex-direction: row; justify-content: space-around;">
+                <engine:Button text="&lt;Previous" name="Previous_Preview_Button" />
+                <engine:Button text="Next&gt;" name="Next_Preview_Button" />
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement style="flex-grow: 0; height: 20%; justify-content: flex-end;">
+            <engine:Button text="Capture Image" name="Capture_Button" />
         </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

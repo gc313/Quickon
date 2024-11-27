@@ -1,67 +1,163 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using System;
+
 namespace Quickon.Core
 {
     public class CaptureHelper
     {
-        private Camera m_Camera;
-        private int m_CaptureCount;
+        private Camera mainCamera;
+        private int captureCount;
+        private int currentPreviewIndex;
+        private GameObject previewObject;
+
+        /// <summary>
+        /// 初始化摄像机
+        /// </summary>
+        private void InitializeCamera()
+        {
+            if (mainCamera == null)
+            {
+                mainCamera = Camera.main; // 尝试在编辑器模式下获取主摄像机
+                if (mainCamera == null)
+                {
+                    Debug.LogError("Main camera not found!");
+                }
+            }
+        }
 
         /// <summary>
         /// 放置对象并拍照
         /// </summary>
-        /// <param name="objects"></param>
-        public void PlaceObjects(List<CaptureObject> objects)
+        /// <param name="captureObjects">要拍摄的对象列表</param>
+        public void PlaceObjectsAndCapture(List<CaptureObject> captureObjects)
         {
-            foreach (var item in objects)
+            foreach (var item in captureObjects)
             {
-                // 实例化预制体并添加到当前场景中
-                GameObject instance = Object.Instantiate(item.gameObject);
-                if (instance != null)
+                if (item.gameObject == null)
                 {
-                    instance.transform.position = item.gameObject.transform.position; // 可以设置位置
-                    instance.transform.rotation = item.gameObject.transform.rotation; // 可以设置旋转
-                    instance.transform.localScale = item.gameObject.transform.localScale; // 可以设置缩放
+                    continue;
                 }
                 else
                 {
-                    Debug.LogError("Failed to instantiate object: " + item.gameObject.name);
+                    InstantiateObjectToScene(item.gameObject);
+                    CaptureImage(item.gameObject.name);
+                    DestroyObjectFromScene(previewObject);
                 }
-
-                CapturePicture(item.gameObject.name);
-                Object.DestroyImmediate(instance);
             }
             Debug.Log("Capture Done!");
         }
 
         /// <summary>
-        /// 拍照
+        /// 切换预览对象
         /// </summary>
-        /// <param name="name"></param>
-        public void CapturePicture(string name)
+        /// <param name="captureObjects">要预览的对象列表</param>
+        /// <param name="isPreview">是否开启预览</param>
+        public void ToggleObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
         {
-            if (m_Camera == null)
+            if (captureObjects == null || captureObjects.Count == 0) return;
+
+            if (isPreview)
             {
-                m_Camera = Camera.main; // 尝试在编辑器模式下获取主摄像机
-                if (m_Camera == null)
+                for (int index = 0; index < captureObjects.Count; index++)
                 {
-                    return;
+                    if (captureObjects[index].gameObject == null)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        currentPreviewIndex = index;
+                        InstantiateObjectToScene(captureObjects[index].gameObject);
+                        return;
+                    }
                 }
             }
+            else
+            {
+                DestroyObjectFromScene(previewObject);
+            }
+        }
+
+        /// <summary>
+        /// 上一个预览对象
+        /// </summary>
+        /// <param name="captureObjects">要预览的对象列表</param>
+        /// <param name="isPreview">是否开启预览</param>
+        public void PreviousObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
+        {
+            if (!isPreview || captureObjects == null || captureObjects.Count == 0) return;
+
+            currentPreviewIndex = Math.Max(0, currentPreviewIndex - 1);
+            if (currentPreviewIndex >= 0)
+            {
+                DestroyObjectFromScene(previewObject);
+                InstantiateObjectToScene(captureObjects[currentPreviewIndex].gameObject);
+            }
+        }
+
+        /// <summary>
+        /// 下一个预览对象
+        /// </summary>
+        /// <param name="captureObjects">要预览的对象列表</param>
+        /// <param name="isPreview">是否开启预览</param>
+        public void NextObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
+        {
+            if (!isPreview || captureObjects == null || captureObjects.Count == 0) return;
+
+            currentPreviewIndex = Math.Min(currentPreviewIndex + 1, captureObjects.Count - 1);
+            if (currentPreviewIndex < captureObjects.Count)
+            {
+                DestroyObjectFromScene(previewObject);
+                InstantiateObjectToScene(captureObjects[currentPreviewIndex].gameObject);
+            }
+        }
+
+        /// <summary>
+        /// 在场景中实例化对象
+        /// </summary>
+        /// <param name="obj">要实例化的对象</param>
+        public void InstantiateObjectToScene(GameObject obj)
+        {
+            if (obj == null) return;
+            previewObject = UnityEngine.Object.Instantiate(obj);
+            previewObject.transform.position = obj.transform.position; // 设置位置
+            previewObject.transform.rotation = obj.transform.rotation; // 设置旋转
+            previewObject.transform.localScale = obj.transform.localScale; // 设置缩放
+        }
+
+        /// <summary>
+        /// 从场景中立即销毁对象
+        /// </summary>
+        /// <param name="obj">要销毁的对象</param>
+        public void DestroyObjectFromScene(GameObject obj)
+        {
+            if (obj == null) return;
+            UnityEngine.Object.DestroyImmediate(obj);
+            previewObject = null;
+        }
+
+        /// <summary>
+        /// 拍照
+        /// </summary>
+        /// <param name="name">图片名称</param>
+        public void CaptureImage(string name)
+        {
+            InitializeCamera(); // 确保摄像机已初始化
 
             int width = Config.ImgWeight;
             int height = Config.ImgHeight;
 
             // 创建一个RenderTexture
-            RenderTexture rt = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
+            RenderTexture renderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
 
             // 设置摄像机的目标纹理
-            m_Camera.targetTexture = rt;
+            mainCamera.targetTexture = renderTexture;
 
             // 渲染摄像机
-            m_Camera.Render();
-            RenderTexture.active = rt;
+            mainCamera.Render();
+            RenderTexture.active = renderTexture;
 
             // 创建一个Texture2D对象来读取像素
             Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
@@ -76,17 +172,17 @@ namespace Quickon.Core
             byte[] bytes = texture.EncodeToPNG();
 
             // 保存到文件
-            m_CaptureCount++;
-            string path = $"E:/{name}{m_CaptureCount}.png";
+            captureCount++;
+            string path = $"E:/{name}{captureCount}.png";
             File.WriteAllBytes(path, bytes);
 
             // 清理
-            m_Camera.targetTexture = null;
+            mainCamera.targetTexture = null;
             RenderTexture.active = null;
 
             // 使用DestroyImmediate来销毁对象
-            Object.DestroyImmediate(texture);
-            Object.DestroyImmediate(rt);
+            UnityEngine.Object.DestroyImmediate(texture);
+            UnityEngine.Object.DestroyImmediate(renderTexture);
         }
     }
 }
