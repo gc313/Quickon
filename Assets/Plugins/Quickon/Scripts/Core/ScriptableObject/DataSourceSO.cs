@@ -5,7 +5,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "DataSourceSO", menuName = "Scriptable Objects/DataSourceSO")]
 public class DataSourceSO : ScriptableObject
 {
-    public float ApparentSize;
+    public float OrthographicSize;
+    public float FieldOfView;
     public float HorizontalAxis;
     public float VerticalAxis;
 }

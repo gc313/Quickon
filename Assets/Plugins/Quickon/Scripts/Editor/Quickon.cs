@@ -14,14 +14,15 @@ namespace Quickon.Editor
         [SerializeField] private VisualTreeAsset visualTreeAsset = default;
         [SerializeField] private VisualTreeAsset cameraPanel = default;
         [SerializeField] private DataSourceSO dataSourceSO;
-        private VisualElement root, element, cameraPanelElement;
 
+        private CaptureHelper captureHelper;
         private CaptureObjSO captureObject;
         private CinemachineCamera camera;
         private CinemachineOrbitalFollow orbitalFollow;
-        private ObjectField cameraField;
+        private bool isCameraOrthographic;
 
-        private CaptureHelper captureHelper;
+        private VisualElement root, element, cameraPanelElement, perspectiveField, orthographicField;
+        private ObjectField cameraField;
         private IntegerField imageWidthField, imageHeightField;
         private Toggle previewToggle;
         private Button previousPreviewButton, nextPreviewButton, autoCaptureButton, manualCaptureButton;
@@ -38,12 +39,14 @@ namespace Quickon.Editor
             captureHelper = new CaptureHelper();
             // 监听 dataSourceSO 的变化
             EditorApplication.update += UpdateCameraFromDataSource;
+            EditorApplication.update += UpdateCameraPanel;
         }
 
         private void OnDisable()
         {
             // 清理监听
             EditorApplication.update -= UpdateCameraFromDataSource;
+            EditorApplication.update -= UpdateCameraPanel;
         }
 
         public void CreateGUI()
@@ -95,9 +98,6 @@ namespace Quickon.Editor
             cameraField = new ObjectField("Camera");
             root.Add(cameraField);
 
-            cameraPanelElement = cameraPanel.Instantiate();
-            root.Add(cameraPanelElement);
-
             // 监听相机字段变化
             cameraField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(e =>
             {
@@ -111,13 +111,46 @@ namespace Quickon.Editor
                 captureHelper.InitializeCamera(e.newValue, dataSourceSO);
             });
 
+            DrawCameraPanel();
+        }
+
+        private void DrawCameraPanel()
+        {
+            isCameraOrthographic = Camera.main.orthographic;
+            cameraPanelElement = cameraPanel.Instantiate();
+            perspectiveField = cameraPanelElement.Q<VisualElement>("Perspective");
+            orthographicField = cameraPanelElement.Q<VisualElement>("Orthographic");
+            CameraProjectionChoice();
+            root.Add(cameraPanelElement);
+        }
+
+        private void UpdateCameraPanel()
+        {
+            if (isCameraOrthographic == Camera.main.orthographic) return;
+            isCameraOrthographic = Camera.main.orthographic;
+            CameraProjectionChoice();
+            cameraPanelElement.MarkDirtyRepaint();
+        }
+
+        private void CameraProjectionChoice()
+        {
+            if (isCameraOrthographic)
+            {
+                orthographicField.style.display = DisplayStyle.Flex;
+                perspectiveField.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                perspectiveField.style.display = DisplayStyle.Flex;
+                orthographicField.style.display = DisplayStyle.None;
+            }
         }
 
         private void UpdateCameraFromDataSource()
         {
             if (camera == null || orbitalFollow == null) return;
-            camera.Lens.OrthographicSize = dataSourceSO.ApparentSize;
-            camera.Lens.FieldOfView = dataSourceSO.ApparentSize;
+            camera.Lens.OrthographicSize = dataSourceSO.OrthographicSize;
+            camera.Lens.FieldOfView = dataSourceSO.FieldOfView;
             orbitalFollow.HorizontalAxis.Value = dataSourceSO.HorizontalAxis;
             orbitalFollow.VerticalAxis.Value = dataSourceSO.VerticalAxis;
             EditorUtility.SetDirty(camera);

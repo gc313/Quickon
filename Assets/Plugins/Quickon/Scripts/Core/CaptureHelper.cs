@@ -16,14 +16,12 @@ namespace Quickon.Core
         private int captureCount;
         private int currentPreviewIndex;
         private GameObject previewObject;
-        private DataSourceSO dataSource;
 
         /// <summary>
         /// 初始化摄像机
         /// </summary>
         public void InitializeCamera(UnityEngine.Object cameraObj, DataSourceSO dataSource)
         {
-            this.dataSource = dataSource;
             if (mainCamera == null)
             {
                 mainCamera = Camera.main; // 尝试在编辑器模式下获取主摄像机
@@ -36,7 +34,6 @@ namespace Quickon.Core
             orbitalFollow = cameraObj.GetComponent<CinemachineOrbitalFollow>();
 
             Debug.Log("Camera Initialized!");
-
         }
 
         /// <summary>
@@ -45,6 +42,7 @@ namespace Quickon.Core
         /// <param name="captureObjects">要拍摄的对象列表</param>
         public void PlaceObjectsAndCapture(List<CaptureObject> captureObjects)
         {
+            if (captureObjects == null || captureObjects.Count == 0) return;
             captureCount = 0;
             foreach (var item in captureObjects)
             {
@@ -151,6 +149,7 @@ namespace Quickon.Core
 
         public void CameraLookAtTarget(Transform targetTransform)
         {
+            if (targetTransform == null) return;
             camera.Follow = targetTransform;
         }
 
