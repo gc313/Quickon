@@ -1,14 +1,14 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Plugins/Quickon/Scripts/Editor/CameraPanel.uss?fileID=7433441132597879392&amp;guid=dfce5314a70885441aa2889d32b1dfd2&amp;type=3#CameraPanel" />
     <engine:VisualElement style="flex-grow: 0; height: 50px; align-self: auto;">
-        <engine:FloatField label="Apparent Size" value="-360" max-length="10" name="ApparentSize_Value" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" data-source-path="camera">
+        <engine:FloatField label="Apparent Size" value="-360" max-length="100" name="ApparentSize_Value" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" data-source-path="camera">
             <Bindings>
-                <engine:DataBinding property="value" data-source-path="OrthographicSize" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
+                <engine:DataBinding property="value" data-source-path="ApparentSize" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
             </Bindings>
         </engine:FloatField>
-        <engine:Slider value="42" high-value="10" name="ApparentSize_Slider" low-value="-10" style="align-content: flex-start;">
+        <engine:Slider value="5" high-value="100" name="ApparentSize_Slider" low-value="0" style="align-content: flex-start;">
             <Bindings>
-                <engine:DataBinding property="value" data-source-path="OrthographicSize" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
+                <engine:DataBinding property="value" data-source-path="ApparentSize" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
             </Bindings>
         </engine:Slider>
     </engine:VisualElement>
@@ -18,19 +18,19 @@
                 <engine:DataBinding property="value" data-source-path="HorizontalAxis" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
             </Bindings>
         </engine:FloatField>
-        <engine:Slider value="42" high-value="360" name="HorizontalAxis_Slider" low-value="-360">
+        <engine:Slider value="1" high-value="360" name="HorizontalAxis_Slider" low-value="0">
             <Bindings>
                 <engine:DataBinding property="value" data-source-path="HorizontalAxis" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
             </Bindings>
         </engine:Slider>
     </engine:VisualElement>
     <engine:VisualElement style="flex-grow: 0; height: 50px; align-self: auto; align-content: auto;">
-        <engine:FloatField value="-360" max-length="360" label="Vertical Axis" name="VerticalAxis_Value">
+        <engine:FloatField value="-360" max-length="50" label="Vertical Axis" name="VerticalAxis_Value">
             <Bindings>
                 <engine:DataBinding property="value" data-source-path="VerticalAxis" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
             </Bindings>
         </engine:FloatField>
-        <engine:Slider value="42" high-value="360" name="VerticalAxis_Slider" low-value="-360">
+        <engine:Slider value="42" high-value="50" name="VerticalAxis_Slider" low-value="-10">
             <Bindings>
                 <engine:DataBinding property="value" data-source-path="VerticalAxis" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
             </Bindings>

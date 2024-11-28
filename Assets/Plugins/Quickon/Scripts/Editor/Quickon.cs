@@ -21,9 +21,6 @@ namespace Quickon.Editor
         private CinemachineOrbitalFollow orbitalFollow;
         private ObjectField cameraField;
 
-        private FloatField apparentSizeField, horizontalAxisField, verticalAxisField;
-        private Slider apparentSizeSlider, horizontalAxisSlider, verticalAxisSlider;
-
         private CaptureHelper captureHelper;
         private IntegerField imageWidthField, imageHeightField;
         private Toggle previewToggle;
@@ -39,6 +36,14 @@ namespace Quickon.Editor
         private void OnEnable()
         {
             captureHelper = new CaptureHelper();
+            // 监听 dataSourceSO 的变化
+            EditorApplication.update += UpdateCameraFromDataSource;
+        }
+
+        private void OnDisable()
+        {
+            // 清理监听
+            EditorApplication.update -= UpdateCameraFromDataSource;
         }
 
         public void CreateGUI()
@@ -63,8 +68,6 @@ namespace Quickon.Editor
             nextPreviewButton = element.Q<Button>("Next_Preview_Button");
             autoCaptureButton = element.Q<Button>("AutoCapture_Button");
             manualCaptureButton = element.Q<Button>("ManualCapture_Button");
-
-
 
             // 监听图片宽度变化
             imageWidthField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgWeight = e.newValue; });
@@ -95,48 +98,30 @@ namespace Quickon.Editor
             cameraPanelElement = cameraPanel.Instantiate();
             root.Add(cameraPanelElement);
 
-            apparentSizeField = cameraPanelElement.Q<FloatField>("ApparentSize_Value");
-            horizontalAxisField = cameraPanelElement.Q<FloatField>("HorizontalAxis_Value");
-            verticalAxisField = cameraPanelElement.Q<FloatField>("VerticalAxis_Value");
-            apparentSizeSlider = cameraPanelElement.Q<Slider>("ApparentSize_Slider");
-            horizontalAxisSlider = cameraPanelElement.Q<Slider>("HorizontalAxis_Slider");
-            verticalAxisSlider = cameraPanelElement.Q<Slider>("VerticalAxis_Slider");
-
             // 监听相机字段变化
             cameraField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(e =>
             {
                 camera = e.newValue.GetComponent<CinemachineCamera>();
-
-                apparentSizeField.RegisterValueChangedCallback(e =>
-                {
-                    camera.Lens.OrthographicSize = dataSourceSO.OrthographicSize;
-                });
-                apparentSizeSlider.RegisterValueChangedCallback(e =>
-                {
-                    camera.Lens.OrthographicSize = dataSourceSO.OrthographicSize;
-                });
-
                 orbitalFollow = e.newValue.GetComponent<CinemachineOrbitalFollow>();
-                horizontalAxisField.RegisterValueChangedCallback(e =>
-                {
-                    orbitalFollow.HorizontalAxis.Value = dataSourceSO.HorizontalAxis;
-                });
-                horizontalAxisSlider.RegisterValueChangedCallback(e =>
-                {
-                    orbitalFollow.HorizontalAxis.Value = dataSourceSO.HorizontalAxis;
-                });
-                verticalAxisField.RegisterValueChangedCallback(e =>
-                {
-                    orbitalFollow.VerticalAxis.Value = dataSourceSO.VerticalAxis;
-                });
-                verticalAxisSlider.RegisterValueChangedCallback(e =>
-                {
-                    orbitalFollow.VerticalAxis.Value = dataSourceSO.VerticalAxis;
-                });
+
+                // 每次选择新的相机时重新注册 dataSourceSO 的监听
+                EditorApplication.update -= UpdateCameraFromDataSource;
+                EditorApplication.update += UpdateCameraFromDataSource;
 
                 captureHelper.InitializeCamera(e.newValue, dataSourceSO);
             });
 
+        }
+
+        private void UpdateCameraFromDataSource()
+        {
+            if (camera == null || orbitalFollow == null) return;
+            camera.Lens.OrthographicSize = dataSourceSO.ApparentSize;
+            camera.Lens.FieldOfView = dataSourceSO.ApparentSize;
+            orbitalFollow.HorizontalAxis.Value = dataSourceSO.HorizontalAxis;
+            orbitalFollow.VerticalAxis.Value = dataSourceSO.VerticalAxis;
+            EditorUtility.SetDirty(camera);
+            EditorUtility.SetDirty(orbitalFollow);
         }
 
         private void DrawCaptureObjectList()
