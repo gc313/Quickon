@@ -50,7 +50,7 @@ public class OnDrawGizmo : MonoBehaviour
         Vector3 topLeft = m_Camera.ViewportToWorldPoint(new Vector3(leftMargin, 1, nearClipPlane));
 
         // 绘制方框
-        Gizmos.color = Color.red;
+        Gizmos.color = Color.green;
         Gizmos.DrawLine(bottomLeft, bottomRight);
         Gizmos.DrawLine(bottomRight, topRight);
         Gizmos.DrawLine(topRight, topLeft);

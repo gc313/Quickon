@@ -90,7 +90,7 @@ namespace Quickon.Editor
 
             // 监听截图按钮点击事件
             autoCaptureButton.clicked += () => { captureHelper.PlaceObjectsAndCapture(captureObject.CaptureObjects); };
-            manualCaptureButton.clicked += () => { captureHelper.CaptureImage(); };
+            manualCaptureButton.clicked += () => { captureHelper.CaptureImage(false); };
         }
 
         private void DrawCameraField()
@@ -108,7 +108,7 @@ namespace Quickon.Editor
                 EditorApplication.update -= UpdateCameraFromDataSource;
                 EditorApplication.update += UpdateCameraFromDataSource;
 
-                captureHelper.InitializeCamera(e.newValue, dataSourceSO);
+                captureHelper.InitializeCamera(e.newValue);
             });
 
             DrawCameraPanel();

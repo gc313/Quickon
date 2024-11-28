@@ -20,7 +20,7 @@ namespace Quickon.Core
         /// <summary>
         /// 初始化摄像机
         /// </summary>
-        public void InitializeCamera(UnityEngine.Object cameraObj, DataSourceSO dataSource)
+        public void InitializeCamera(UnityEngine.Object cameraObj)
         {
             if (mainCamera == null)
             {
@@ -53,7 +53,7 @@ namespace Quickon.Core
                 else
                 {
                     InstantiateObjectToScene(item.gameObject);
-                    CaptureImage();
+                    CaptureImage(true);
                     DestroyObjectFromScene(previewObject);
                 }
             }
@@ -157,9 +157,19 @@ namespace Quickon.Core
         /// 拍照
         /// </summary>
         /// <param name="name">图片名称</param>
-        public void CaptureImage()
+        public void CaptureImage(bool isAuto)
         {
-            if (previewObject == null) return;
+            string imageName;
+            if (isAuto)
+            {
+                if (previewObject == null) return;
+                imageName = previewObject.name;
+            }
+            else
+            {
+                imageName = "PreviewObject";
+            }
+
             int width = Config.ImgWeight;
             int height = Config.ImgHeight;
 
@@ -180,6 +190,7 @@ namespace Quickon.Core
             Rect readRect = new Rect(0, 0, width, height);
 
             texture.ReadPixels(readRect, 0, 0);
+
             texture.Apply();
 
             // 将Texture2D对象转换为PNG格式的字节数组
@@ -187,7 +198,7 @@ namespace Quickon.Core
 
             // 保存到文件
             captureCount++;
-            string path = $"E:/{previewObject.name}{captureCount}.png";
+            string path = $"E:/{imageName}{captureCount}.png";
             File.WriteAllBytes(path, bytes);
 
             // 清理
