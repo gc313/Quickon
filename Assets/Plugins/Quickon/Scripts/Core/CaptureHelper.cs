@@ -12,18 +12,18 @@ namespace Quickon.Core
 {
     public class CaptureHelper
     {
-        [SerializeField] private Material material;
         private Camera mainCamera;
         private CinemachineOrbitalFollow orbitalFollow;
         private CinemachineCamera camera;
         private int captureCount;
         private int currentPreviewIndex;
         private GameObject previewObject;
+        private PostProcessing postProcessing;
 
         /// <summary>
         /// 初始化摄像机
         /// </summary>
-        public void InitializeCamera(UnityEngine.Object cameraObj)
+        public void InitializeHelper(UnityEngine.Object cameraObj)
         {
             if (mainCamera == null)
             {
@@ -36,7 +36,9 @@ namespace Quickon.Core
             camera = cameraObj.GetComponent<CinemachineCamera>();
             orbitalFollow = cameraObj.GetComponent<CinemachineOrbitalFollow>();
 
-            Debug.Log("Camera Initialized!");
+            postProcessing = new PostProcessing();
+
+            Debug.Log("Initialized!");
         }
 
         /// <summary>
@@ -159,7 +161,6 @@ namespace Quickon.Core
         /// <summary>
         /// 拍照
         /// </summary>
-        /// <param name="name">图片名称</param>
         public void CaptureImage(bool isAuto)
         {
             if (mainCamera == null || camera == null || orbitalFollow == null) return;
@@ -179,65 +180,31 @@ namespace Quickon.Core
 
             // 创建一个RenderTexture
             RenderTexture renderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
-
-            // 设置摄像机的目标纹理
             mainCamera.targetTexture = renderTexture;
-
-            // 透明背景时使用
-            // mainCamera.clearFlags = CameraClearFlags.SolidColor;
-            // mainCamera.backgroundColor = Color.black;
-            string materialPath = "Shaders/TransparentBackground";
-            Material transparent = Resources.Load<Material>(materialPath);
-            if (transparent == null)
-            {
-                Debug.LogError($"Could not find the material at path: {materialPath}. Please check the path and name.");
-            }
-            else
-            {
-                Debug.Log($"Loaded material: {transparent.name}");
-            }
-
-            // 渲染摄像机
             mainCamera.Render();
             RenderTexture.active = renderTexture;
-
-            // 创建一个Texture2D对象来读取像素
-            Texture2D originTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
-
-            // 确保读取区域不超过RenderTexture的边界
+            // 以RenderTexture的边界创建读取区域
             Rect readRect = new Rect(0, 0, width, height);
 
-            originTexture.ReadPixels(readRect, 0, 0);
-            originTexture.Apply();
+            // 应用后期处理
+            postProcessing.Stack(renderTexture, mainCamera, readRect, width, height);
 
-            transparent.SetTexture("_MainTex", originTexture);
-            Graphics.Blit(null, renderTexture, transparent);
+            // 读取纹理
             Texture2D finalTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
             finalTexture.ReadPixels(readRect, 0, 0);
             finalTexture.Apply();
 
-            // 将Texture2D对象转换为PNG格式的字节数组
-            byte[] bytes0 = finalTexture.EncodeToPNG();
-            if (bytes0.Length == 0)
-            {
-                Debug.LogError("Failed to encode Texture2D to PNG.");
-            }
-            else
-            {
-                Debug.Log("Texture2D encoded to PNG successfully.");
-            }
-
             // 保存到文件
             captureCount++;
             string path = $"E:/{imageName}{captureCount}.png";
-            File.WriteAllBytes(path, bytes0);
+            byte[] bytes = finalTexture.EncodeToPNG();
+            File.WriteAllBytes(path, bytes);
 
             // 清理
             mainCamera.targetTexture = null;
             RenderTexture.active = null;
 
             // 使用DestroyImmediate来销毁对象
-            UnityEngine.Object.DestroyImmediate(originTexture);
             UnityEngine.Object.DestroyImmediate(finalTexture);
             UnityEngine.Object.DestroyImmediate(renderTexture);
         }

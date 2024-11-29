@@ -7,6 +7,7 @@ MonoImporter:
   - m_ViewDataDictionary: {instanceID: 0}
   - visualTreeAsset: {fileID: 9197481963319205126, guid: 0e501f9c8b82a2f4794fe35d0b5eff7f, type: 3}
   - cameraPanel: {fileID: 9197481963319205126, guid: 1124a03ddce793e4dbe2fbebcb2fff18, type: 3}
+  - postProcessingPanel: {fileID: 9197481963319205126, guid: 4c5cc6519025ca14384198e3efb728af, type: 3}
   - dataSourceSO: {fileID: 11400000, guid: 98b7c5f44391987429e2c52b2aabdca6, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}

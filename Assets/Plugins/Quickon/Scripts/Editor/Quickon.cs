@@ -11,8 +11,9 @@ namespace Quickon.Editor
 {
     public class Quickon : EditorWindow
     {
-        [SerializeField] private VisualTreeAsset visualTreeAsset = default;
-        [SerializeField] private VisualTreeAsset cameraPanel = default;
+        [SerializeField] private VisualTreeAsset visualTreeAsset;
+        [SerializeField] private VisualTreeAsset cameraPanel;
+        [SerializeField] private VisualTreeAsset postProcessingPanel;
         [SerializeField] private DataSourceSO dataSourceSO;
 
         private CaptureHelper captureHelper;
@@ -21,12 +22,12 @@ namespace Quickon.Editor
         private CinemachineOrbitalFollow orbitalFollow;
         private bool isCameraOrthographic;
 
-        private VisualElement root, element, cameraPanelElement, perspectiveField, orthographicField;
+        private VisualElement root, mainElement, cameraPanelElement, postPanelElement, perspectiveField, orthographicField;
         private ObjectField cameraField;
         private IntegerField imageWidthField, imageHeightField;
         private FloatField orthographicSizeField, fieldOfViewField, horizontalAxisField, verticalAxisField;
         private Slider orthographicSlider, fieldOfViewSlider, horizontalAxisSlider, verticalAxisSlider;
-        private Toggle previewToggle;
+        private Toggle previewToggle, transparentToggle;
         private Button previousPreviewButton, nextPreviewButton, autoCaptureButton, manualCaptureButton;
 
         [MenuItem("Window/Quickon")]
@@ -57,22 +58,32 @@ namespace Quickon.Editor
 
             DrawCameraField();
             DrawImageSizeField();
+            DrawPostPrecessingPanel();
             DrawCaptureObjectList();
+        }
+
+        private void DrawPostPrecessingPanel()
+        {
+            postPanelElement = postProcessingPanel.Instantiate();
+            root.Add(postPanelElement);
+
+            transparentToggle = postPanelElement.Q<Toggle>("RemoveBackground_Toggle");
+            transparentToggle.RegisterCallback<ChangeEvent<bool>>(e => { Config.IsTransparent = e.newValue; });
         }
 
         private void DrawImageSizeField()
         {
-            element = visualTreeAsset.Instantiate();
-            root.Add(element);
+            mainElement = visualTreeAsset.Instantiate();
+            root.Add(mainElement);
 
-            imageWidthField = element.Q<IntegerField>("Image_Weight");
-            imageHeightField = element.Q<IntegerField>("Image_Height");
+            imageWidthField = mainElement.Q<IntegerField>("Image_Weight");
+            imageHeightField = mainElement.Q<IntegerField>("Image_Height");
 
-            previewToggle = element.Q<Toggle>("Preview_Toggle");
-            previousPreviewButton = element.Q<Button>("Previous_Preview_Button");
-            nextPreviewButton = element.Q<Button>("Next_Preview_Button");
-            autoCaptureButton = element.Q<Button>("AutoCapture_Button");
-            manualCaptureButton = element.Q<Button>("ManualCapture_Button");
+            previewToggle = mainElement.Q<Toggle>("Preview_Toggle");
+            previousPreviewButton = mainElement.Q<Button>("Previous_Preview_Button");
+            nextPreviewButton = mainElement.Q<Button>("Next_Preview_Button");
+            autoCaptureButton = mainElement.Q<Button>("AutoCapture_Button");
+            manualCaptureButton = mainElement.Q<Button>("ManualCapture_Button");
 
             // 监听图片宽度变化
             imageWidthField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgWeight = e.newValue; });
@@ -112,7 +123,7 @@ namespace Quickon.Editor
                 EditorApplication.update -= UpdateCameraFromDataSource;
                 EditorApplication.update += UpdateCameraFromDataSource;
 
-                captureHelper.InitializeCamera(e.newValue);
+                captureHelper.InitializeHelper(e.newValue);
             });
 
             DrawCameraPanel();
