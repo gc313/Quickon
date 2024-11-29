@@ -24,6 +24,8 @@ namespace Quickon.Editor
         private VisualElement root, element, cameraPanelElement, perspectiveField, orthographicField;
         private ObjectField cameraField;
         private IntegerField imageWidthField, imageHeightField;
+        private FloatField orthographicSizeField, fieldOfViewField, horizontalAxisField, verticalAxisField;
+        private Slider orthographicSlider, fieldOfViewSlider, horizontalAxisSlider, verticalAxisSlider;
         private Toggle previewToggle;
         private Button previousPreviewButton, nextPreviewButton, autoCaptureButton, manualCaptureButton;
 
@@ -104,6 +106,8 @@ namespace Quickon.Editor
                 camera = e.newValue.GetComponent<CinemachineCamera>();
                 orbitalFollow = e.newValue.GetComponent<CinemachineOrbitalFollow>();
 
+                UpdateUIFromCamera();
+
                 // 每次选择新的相机时重新注册 dataSourceSO 的监听
                 EditorApplication.update -= UpdateCameraFromDataSource;
                 EditorApplication.update += UpdateCameraFromDataSource;
@@ -112,6 +116,30 @@ namespace Quickon.Editor
             });
 
             DrawCameraPanel();
+        }
+
+        private void UpdateUIFromCamera()
+        {
+            orthographicSizeField = cameraPanelElement.Q<FloatField>("OrthographicSize_Value");
+            orthographicSlider = cameraPanelElement.Q<Slider>("OrthographicSize_Slider");
+
+            fieldOfViewField = cameraPanelElement.Q<FloatField>("FieldOfView_Value");
+            fieldOfViewSlider = cameraPanelElement.Q<Slider>("FieldOfView_Slider");
+
+            horizontalAxisField = cameraPanelElement.Q<FloatField>("HorizontalAxis_Value");
+            horizontalAxisSlider = cameraPanelElement.Q<Slider>("HorizontalAxis_Slider");
+
+            verticalAxisField = cameraPanelElement.Q<FloatField>("VerticalAxis_Value");
+            verticalAxisSlider = cameraPanelElement.Q<Slider>("VerticalAxis_Slider");
+
+            orthographicSizeField.SetValueWithoutNotify(camera.Lens.OrthographicSize);
+            orthographicSlider.SetValueWithoutNotify(camera.Lens.OrthographicSize);
+            fieldOfViewField.SetValueWithoutNotify(camera.Lens.FieldOfView);
+            fieldOfViewSlider.SetValueWithoutNotify(camera.Lens.FieldOfView);
+            horizontalAxisField.SetValueWithoutNotify(orbitalFollow.HorizontalAxis.Value);
+            horizontalAxisSlider.SetValueWithoutNotify(orbitalFollow.HorizontalAxis.Value);
+            verticalAxisField.SetValueWithoutNotify(orbitalFollow.VerticalAxis.Value);
+            verticalAxisSlider.SetValueWithoutNotify(orbitalFollow.VerticalAxis.Value);
         }
 
         private void DrawCameraPanel()
@@ -134,6 +162,7 @@ namespace Quickon.Editor
 
         private void CameraProjectionChoice()
         {
+            if (camera == null || orbitalFollow == null) return;
             if (isCameraOrthographic)
             {
                 orthographicField.style.display = DisplayStyle.Flex;

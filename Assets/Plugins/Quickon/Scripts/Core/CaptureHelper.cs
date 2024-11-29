@@ -4,12 +4,15 @@ using System.Collections.Generic;
 using System;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
+using UnityEditor;
+using UnityEngine.UI;
 
 
 namespace Quickon.Core
 {
     public class CaptureHelper
     {
+        [SerializeField] private Material material;
         private Camera mainCamera;
         private CinemachineOrbitalFollow orbitalFollow;
         private CinemachineCamera camera;
@@ -159,6 +162,7 @@ namespace Quickon.Core
         /// <param name="name">图片名称</param>
         public void CaptureImage(bool isAuto)
         {
+            if (mainCamera == null || camera == null || orbitalFollow == null) return;
             string imageName;
             if (isAuto)
             {
@@ -179,34 +183,62 @@ namespace Quickon.Core
             // 设置摄像机的目标纹理
             mainCamera.targetTexture = renderTexture;
 
+            // 透明背景时使用
+            // mainCamera.clearFlags = CameraClearFlags.SolidColor;
+            // mainCamera.backgroundColor = Color.black;
+            string materialPath = "Shaders/TransparentBackground";
+            Material transparent = Resources.Load<Material>(materialPath);
+            if (transparent == null)
+            {
+                Debug.LogError($"Could not find the material at path: {materialPath}. Please check the path and name.");
+            }
+            else
+            {
+                Debug.Log($"Loaded material: {transparent.name}");
+            }
+
             // 渲染摄像机
             mainCamera.Render();
             RenderTexture.active = renderTexture;
 
             // 创建一个Texture2D对象来读取像素
-            Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            Texture2D originTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
 
             // 确保读取区域不超过RenderTexture的边界
             Rect readRect = new Rect(0, 0, width, height);
 
-            texture.ReadPixels(readRect, 0, 0);
+            originTexture.ReadPixels(readRect, 0, 0);
+            originTexture.Apply();
 
-            texture.Apply();
+            transparent.SetTexture("_MainTex", originTexture);
+            Graphics.Blit(null, renderTexture, transparent);
+            Texture2D finalTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            finalTexture.ReadPixels(readRect, 0, 0);
+            finalTexture.Apply();
 
             // 将Texture2D对象转换为PNG格式的字节数组
-            byte[] bytes = texture.EncodeToPNG();
+            byte[] bytes0 = finalTexture.EncodeToPNG();
+            if (bytes0.Length == 0)
+            {
+                Debug.LogError("Failed to encode Texture2D to PNG.");
+            }
+            else
+            {
+                Debug.Log("Texture2D encoded to PNG successfully.");
+            }
 
             // 保存到文件
             captureCount++;
             string path = $"E:/{imageName}{captureCount}.png";
-            File.WriteAllBytes(path, bytes);
+            File.WriteAllBytes(path, bytes0);
 
             // 清理
             mainCamera.targetTexture = null;
             RenderTexture.active = null;
 
             // 使用DestroyImmediate来销毁对象
-            UnityEngine.Object.DestroyImmediate(texture);
+            UnityEngine.Object.DestroyImmediate(originTexture);
+            UnityEngine.Object.DestroyImmediate(finalTexture);
             UnityEngine.Object.DestroyImmediate(renderTexture);
         }
     }

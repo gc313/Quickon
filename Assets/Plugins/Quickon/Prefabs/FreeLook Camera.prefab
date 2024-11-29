@@ -61,7 +61,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 0.01
-    OrthographicSize: 0.69
+    OrthographicSize: 1.17
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -113,7 +113,7 @@ MonoBehaviour:
     SplineCurvature: 0.5
   RecenteringTarget: 2
   HorizontalAxis:
-    Value: -41
+    Value: 22.3
     Center: 0
     Range: {x: -180, y: 180}
     Wrap: 1
@@ -123,7 +123,7 @@ MonoBehaviour:
       Time: 2
     Restrictions: 0
   VerticalAxis:
-    Value: -10
+    Value: 22.7
     Center: 17.5
     Range: {x: -10, y: 45}
     Wrap: 0
