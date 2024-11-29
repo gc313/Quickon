@@ -108,25 +108,48 @@ namespace Quickon.Editor
 
         private void DrawCameraField()
         {
-            cameraField = new ObjectField("Camera");
+            cameraField = new ObjectField("Camera")
+            {
+                value = SetCaptureCamera()
+            };
             root.Add(cameraField);
 
             // 监听相机字段变化
             cameraField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(e =>
             {
-                camera = e.newValue.GetComponent<CinemachineCamera>();
-                orbitalFollow = e.newValue.GetComponent<CinemachineOrbitalFollow>();
-
-                UpdateUIFromCamera();
-
-                // 每次选择新的相机时重新注册 dataSourceSO 的监听
-                EditorApplication.update -= UpdateCameraFromDataSource;
-                EditorApplication.update += UpdateCameraFromDataSource;
-
-                captureHelper.InitializeHelper(e.newValue);
+                RegisterCameraEvent(e.newValue);
             });
 
             DrawCameraPanel();
+        }
+
+        private UnityEngine.Object SetCaptureCamera()
+        {
+            var newCamera = GameObject.FindWithTag("CaptureCamera");
+            if (newCamera == null)
+            {
+                //创建一个
+                newCamera = new GameObject("CaptureCamera");
+                newCamera.tag = "CaptureCamera";
+                newCamera.AddComponent<CinemachineCamera>();
+                newCamera.AddComponent<CinemachineOrbitalFollow>();
+                newCamera.AddComponent<CinemachineRotationComposer>();
+                newCamera.AddComponent<CinemachineFreeLookModifier>();
+                newCamera.AddComponent<CinemachineInputAxisController>();
+            }
+            RegisterCameraEvent(newCamera);
+            return newCamera;
+        }
+
+        private void RegisterCameraEvent(UnityEngine.Object cameraObj)
+        {
+            camera = cameraObj.GetComponent<CinemachineCamera>();
+            orbitalFollow = cameraObj.GetComponent<CinemachineOrbitalFollow>();
+            // 每次选择新的相机时重新注册 dataSourceSO 的监听
+            EditorApplication.update -= UpdateCameraFromDataSource;
+            EditorApplication.update += UpdateCameraFromDataSource;
+            captureHelper.InitializeHelper(cameraObj);
+
         }
 
         private void UpdateUIFromCamera()
@@ -161,6 +184,8 @@ namespace Quickon.Editor
             orthographicField = cameraPanelElement.Q<VisualElement>("Orthographic");
             CameraProjectionChoice();
             root.Add(cameraPanelElement);
+
+            UpdateUIFromCamera();
         }
 
         private void UpdateCameraPanel()
