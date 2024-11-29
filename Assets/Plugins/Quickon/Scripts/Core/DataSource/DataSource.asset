@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72daae52db7ed2a46a080887713b5ad0, type: 3}
   m_Name: DataSource
   m_EditorClassIdentifier: 
-  OrthographicSize: -2.02
-  HorizontalAxis: -41
-  VerticalAxis: -145
+  ImgWeight: 256
+  ImgHeight: 256
+  OrthographicSize: 1
+  FieldOfView: 10
+  HorizontalAxis: 0
+  VerticalAxis: 45

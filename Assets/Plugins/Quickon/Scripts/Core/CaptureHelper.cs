@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
-using UnityEditor;
-using UnityEngine.UI;
-
 
 namespace Quickon.Core
 {
@@ -19,20 +16,22 @@ namespace Quickon.Core
         private int currentPreviewIndex;
         private GameObject previewObject;
         private PostProcessing postProcessing;
+        private DataSourceSO dataSourceSO;
 
         /// <summary>
         /// 初始化摄像机
         /// </summary>
-        public void InitializeHelper(UnityEngine.Object cameraObj)
+        public void InitializeHelper(UnityEngine.Object cameraObj, DataSourceSO dataSourceSO)
         {
             if (mainCamera == null)
             {
-                mainCamera = Camera.main; // 尝试在编辑器模式下获取主摄像机
+                mainCamera = Camera.main;
                 if (mainCamera == null)
                 {
                     Debug.LogError("Main camera not found!");
                 }
             }
+            this.dataSourceSO = dataSourceSO;
             camera = cameraObj.GetComponent<CinemachineCamera>();
             orbitalFollow = cameraObj.GetComponent<CinemachineOrbitalFollow>();
 
@@ -73,7 +72,6 @@ namespace Quickon.Core
         public void ToggleObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
         {
             if (captureObjects == null || captureObjects.Count == 0) return;
-
             if (isPreview)
             {
                 for (int index = 0; index < captureObjects.Count; index++)
@@ -175,8 +173,8 @@ namespace Quickon.Core
                 imageName = "PreviewObject";
             }
 
-            int width = Config.ImgWeight;
-            int height = Config.ImgHeight;
+            int width = dataSourceSO.ImgWeight;
+            int height = dataSourceSO.ImgHeight;
 
             // 创建一个RenderTexture
             RenderTexture renderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
@@ -195,10 +193,7 @@ namespace Quickon.Core
             finalTexture.Apply();
 
             // 保存到文件
-            captureCount++;
-            string path = $"E:/{imageName}{captureCount}.png";
-            byte[] bytes = finalTexture.EncodeToPNG();
-            File.WriteAllBytes(path, bytes);
+            SaveImage(imageName, finalTexture);
 
             // 清理
             mainCamera.targetTexture = null;
@@ -207,6 +202,14 @@ namespace Quickon.Core
             // 使用DestroyImmediate来销毁对象
             UnityEngine.Object.DestroyImmediate(finalTexture);
             UnityEngine.Object.DestroyImmediate(renderTexture);
+        }
+
+        private void SaveImage(string imageName, Texture2D finalTexture)
+        {
+            captureCount++;
+            string path = $"{Config.ImgOutputPath}{imageName}{captureCount}.png";
+            byte[] bytes = finalTexture.EncodeToPNG();
+            File.WriteAllBytes(path, bytes);
         }
     }
 }

@@ -2,8 +2,16 @@
     <Style src="project://database/Assets/Plugins/Quickon/Scripts/Editor/Quickon.uss?fileID=7433441132597879392&amp;guid=adda769f5ccb42a4ca9586306d9032f3&amp;type=3#Quickon" />
     <engine:VisualElement style="flex-grow: 1;">
         <engine:VisualElement style="flex-grow: 0; flex-direction: column; height: 60px; justify-content: space-around;">
-            <engine:IntegerField label="Image Weight" value="128" name="Image_Weight" />
-            <engine:IntegerField label="Image Height" value="128" name="Image_Height" />
+            <engine:IntegerField label="Image Weight" value="256" name="Image_Weight" max-length="1024">
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="ImgWeight" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:IntegerField>
+            <engine:IntegerField label="Image Height" value="128" name="Image_Height" max-length="1024">
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="ImgHeight" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:IntegerField>
         </engine:VisualElement>
         <engine:VisualElement style="flex-grow: 0; height: 60px; justify-content: space-around;">
             <engine:VisualElement style="flex-grow: 0;">

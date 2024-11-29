@@ -40,21 +40,19 @@ namespace Quickon.Editor
         private void OnEnable()
         {
             captureHelper = new CaptureHelper();
-            // 监听 dataSourceSO 的变化
             EditorApplication.update += UpdateCameraFromDataSource;
             EditorApplication.update += UpdateCameraPanel;
         }
 
         private void OnDisable()
         {
-            // 清理监听
             EditorApplication.update -= UpdateCameraFromDataSource;
             EditorApplication.update -= UpdateCameraPanel;
         }
 
         public void CreateGUI()
         {
-            root = rootVisualElement; // 获取根视觉元素
+            root = rootVisualElement;
 
             DrawCameraField();
             DrawImageSizeField();
@@ -85,23 +83,16 @@ namespace Quickon.Editor
             autoCaptureButton = mainElement.Q<Button>("AutoCapture_Button");
             manualCaptureButton = mainElement.Q<Button>("ManualCapture_Button");
 
-            // 监听图片宽度变化
-            imageWidthField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgWeight = e.newValue; });
-            // 监听图片高度变化
-            imageHeightField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgHeight = e.newValue; });
-
-            // 监听预览开关变化
+            // 监听控件值变化事件
+            // imageWidthField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgWeight = e.newValue; });
+            // imageHeightField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgHeight = e.newValue; });
             previewToggle.RegisterCallback<ChangeEvent<bool>>(e =>
             {
-                Config.IsPreview = e.newValue; // 更新配置中的预览状态
-                captureHelper.ToggleObjectPreview(captureObject.CaptureObjects, Config.IsPreview); // 切换预览状态
+                Config.IsPreview = e.newValue;
+                captureHelper.ToggleObjectPreview(captureObject.CaptureObjects, Config.IsPreview);
             });
-
-            // 监听上一个、下一个按钮点击事件
-            previousPreviewButton.clicked += () => { captureHelper.PreviousObjectPreview(captureObject.CaptureObjects, Config.IsPreview); }; // 切换到上一个预览对象
-            nextPreviewButton.clicked += () => { captureHelper.NextObjectPreview(captureObject.CaptureObjects, Config.IsPreview); }; // 切换到下一个预览对象
-
-            // 监听截图按钮点击事件
+            previousPreviewButton.clicked += () => { captureHelper.PreviousObjectPreview(captureObject.CaptureObjects, Config.IsPreview); };
+            nextPreviewButton.clicked += () => { captureHelper.NextObjectPreview(captureObject.CaptureObjects, Config.IsPreview); };
             autoCaptureButton.clicked += () => { captureHelper.PlaceObjectsAndCapture(captureObject.CaptureObjects); };
             manualCaptureButton.clicked += () => { captureHelper.CaptureImage(false); };
         }
@@ -115,10 +106,7 @@ namespace Quickon.Editor
             root.Add(cameraField);
 
             // 监听相机字段变化
-            cameraField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(e =>
-            {
-                RegisterCameraEvent(e.newValue);
-            });
+            cameraField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(e => { RegisterCameraEvent(e.newValue); });
 
             DrawCameraPanel();
         }
@@ -128,7 +116,6 @@ namespace Quickon.Editor
             var newCamera = GameObject.FindWithTag("CaptureCamera");
             if (newCamera == null)
             {
-                //创建一个
                 newCamera = new GameObject("CaptureCamera");
                 newCamera.tag = "CaptureCamera";
                 newCamera.AddComponent<CinemachineCamera>();
@@ -145,11 +132,10 @@ namespace Quickon.Editor
         {
             camera = cameraObj.GetComponent<CinemachineCamera>();
             orbitalFollow = cameraObj.GetComponent<CinemachineOrbitalFollow>();
-            // 每次选择新的相机时重新注册 dataSourceSO 的监听
+            // 相机每次变化时重新注册更新事件
             EditorApplication.update -= UpdateCameraFromDataSource;
             EditorApplication.update += UpdateCameraFromDataSource;
-            captureHelper.InitializeHelper(cameraObj);
-
+            captureHelper.InitializeHelper(cameraObj, dataSourceSO);
         }
 
         private void UpdateUIFromCamera()
@@ -224,10 +210,10 @@ namespace Quickon.Editor
 
         private void DrawCaptureObjectList()
         {
-            captureObject = CreateInstance<CaptureObjSO>(); // 创建捕获对象实例
-            var inspectorElement = new InspectorElement(); // 创建检查器元素
-            var serializedObject = new SerializedObject(captureObject); // 序列化捕获对象
-            inspectorElement.Bind(serializedObject); // 绑定序列化对象到检查器元素
+            captureObject = CreateInstance<CaptureObjSO>();
+            var inspectorElement = new InspectorElement();
+            var serializedObject = new SerializedObject(captureObject);
+            inspectorElement.Bind(serializedObject);
             root.Add(inspectorElement);
         }
     }
