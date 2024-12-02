@@ -23,7 +23,7 @@
             </engine:VisualElement>
         </engine:VisualElement>
         <engine:VisualElement name="CaptureButton" style="flex-grow: 0; height: 100px; justify-content: space-around;">
-            <engine:Button text="Auto Capture Image" name="AutoCapture_Button" />
+            <engine:Button text="Auto Capture Images" name="AutoCapture_Button" />
             <engine:Button text="Manual Capture Image" name="ManualCapture_Button" />
         </engine:VisualElement>
     </engine:VisualElement>
