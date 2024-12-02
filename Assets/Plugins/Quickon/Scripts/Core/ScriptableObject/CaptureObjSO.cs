@@ -12,4 +12,17 @@ public class CaptureObjSO : ScriptableObject
 public class CaptureObject
 {
     public GameObject gameObject;
+    public ProjectionType projectionType;
+    public float horizontalAxis;
+    public float verticalAxis;
+    public float fieldOfView;
+    public float orthographicSize;
+}
+
+
+public enum ProjectionType
+{
+    None,
+    Perspective,
+    Orthographic
 }

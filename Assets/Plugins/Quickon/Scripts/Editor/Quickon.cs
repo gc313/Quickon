@@ -24,7 +24,6 @@ namespace Quickon.Editor
 
         private VisualElement root, mainElement, cameraPanelElement, postPanelElement, perspectiveField, orthographicField;
         private ObjectField cameraField;
-        private IntegerField imageWidthField, imageHeightField;
         private FloatField orthographicSizeField, fieldOfViewField, horizontalAxisField, verticalAxisField;
         private Slider orthographicSlider, fieldOfViewSlider, horizontalAxisSlider, verticalAxisSlider;
         private Toggle previewToggle, transparentToggle;
@@ -74,9 +73,6 @@ namespace Quickon.Editor
             mainElement = visualTreeAsset.Instantiate();
             root.Add(mainElement);
 
-            imageWidthField = mainElement.Q<IntegerField>("Image_Weight");
-            imageHeightField = mainElement.Q<IntegerField>("Image_Height");
-
             previewToggle = mainElement.Q<Toggle>("Preview_Toggle");
             previousPreviewButton = mainElement.Q<Button>("Previous_Preview_Button");
             nextPreviewButton = mainElement.Q<Button>("Next_Preview_Button");
@@ -84,8 +80,6 @@ namespace Quickon.Editor
             manualCaptureButton = mainElement.Q<Button>("ManualCapture_Button");
 
             // 监听控件值变化事件
-            // imageWidthField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgWeight = e.newValue; });
-            // imageHeightField.RegisterCallback<ChangeEvent<int>>(e => { Config.ImgHeight = e.newValue; });
             previewToggle.RegisterCallback<ChangeEvent<bool>>(e =>
             {
                 Config.IsPreview = e.newValue;

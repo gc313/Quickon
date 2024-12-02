@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
+using System.Threading.Tasks;
 
 namespace Quickon.Core
 {
@@ -14,7 +15,7 @@ namespace Quickon.Core
         private CinemachineCamera camera;
         private int captureCount;
         private int currentPreviewIndex;
-        private GameObject previewObject;
+        private CaptureObject previewObject;
         private PostProcessing postProcessing;
         private DataSourceSO dataSourceSO;
 
@@ -36,15 +37,16 @@ namespace Quickon.Core
             orbitalFollow = cameraObj.GetComponent<CinemachineOrbitalFollow>();
 
             postProcessing = new PostProcessing();
+            previewObject = new CaptureObject();
 
-            Debug.Log("Initialized!");
+            // Debug.Log("Initialized!");
         }
 
         /// <summary>
         /// 放置对象并拍照
         /// </summary>
         /// <param name="captureObjects">要拍摄的对象列表</param>
-        public void PlaceObjectsAndCapture(List<CaptureObject> captureObjects)
+        public async void PlaceObjectsAndCapture(List<CaptureObject> captureObjects)
         {
             if (captureObjects == null || captureObjects.Count == 0) return;
             captureCount = 0;
@@ -56,12 +58,28 @@ namespace Quickon.Core
                 }
                 else
                 {
-                    InstantiateObjectToScene(item.gameObject);
+                    InstantiateObjectToScene(item);
+                    await Task.Delay(500); // 等待500毫秒
                     CaptureImage(true);
-                    DestroyObjectFromScene(previewObject);
+                    DestroyObjectFromScene(previewObject.gameObject);
                 }
             }
             Debug.Log("Capture Done!");
+        }
+
+        private void WaitForEndOfFrame()
+        {
+            // 这里使用了一个简单的等待一帧的方法
+            // 如果需要更复杂的逻辑，可以考虑使用其他方法
+            while (!Application.isEditor && !Application.isPlaying)
+            {
+                // 确保在编辑器模式下也能正常工作
+                return;
+            }
+            while (Time.frameCount == Time.frameCount - 1)
+            {
+                // 等待当前帧结束
+            }
         }
 
         /// <summary>
@@ -83,14 +101,15 @@ namespace Quickon.Core
                     else
                     {
                         currentPreviewIndex = index;
-                        InstantiateObjectToScene(captureObjects[index].gameObject);
+                        InstantiateObjectToScene(captureObjects[index]);
                         return;
                     }
                 }
             }
             else
             {
-                DestroyObjectFromScene(previewObject);
+                SaveObjectCameraSettings(captureObjects[currentPreviewIndex]);
+                DestroyObjectFromScene(previewObject.gameObject);
             }
         }
 
@@ -103,11 +122,12 @@ namespace Quickon.Core
         {
             if (!isPreview || captureObjects == null || captureObjects.Count == 0) return;
 
+            SaveObjectCameraSettings(captureObjects[currentPreviewIndex]);
             currentPreviewIndex = Math.Max(0, currentPreviewIndex - 1);
             if (currentPreviewIndex >= 0)
             {
-                DestroyObjectFromScene(previewObject);
-                InstantiateObjectToScene(captureObjects[currentPreviewIndex].gameObject);
+                DestroyObjectFromScene(previewObject.gameObject);
+                InstantiateObjectToScene(captureObjects[currentPreviewIndex]);
             }
         }
 
@@ -120,11 +140,12 @@ namespace Quickon.Core
         {
             if (!isPreview || captureObjects == null || captureObjects.Count == 0) return;
 
+            SaveObjectCameraSettings(captureObjects[currentPreviewIndex]);
             currentPreviewIndex = Math.Min(currentPreviewIndex + 1, captureObjects.Count - 1);
             if (currentPreviewIndex < captureObjects.Count)
             {
-                DestroyObjectFromScene(previewObject);
-                InstantiateObjectToScene(captureObjects[currentPreviewIndex].gameObject);
+                DestroyObjectFromScene(previewObject.gameObject);
+                InstantiateObjectToScene(captureObjects[currentPreviewIndex]);
             }
         }
 
@@ -132,11 +153,24 @@ namespace Quickon.Core
         /// 在场景中实例化对象
         /// </summary>
         /// <param name="obj">要实例化的对象</param>
-        public void InstantiateObjectToScene(GameObject obj)
+        public void InstantiateObjectToScene(CaptureObject obj)
         {
             if (obj == null) return;
-            previewObject = UnityEngine.Object.Instantiate(obj);
-            CameraLookAtTarget(previewObject.transform);
+            if (obj.projectionType != ProjectionType.None)
+            {
+                LoadObjectCameraSettings(obj);
+            }
+            else
+            {
+                SaveObjectCameraSettings(obj);
+            }
+            previewObject.gameObject = UnityEngine.Object.Instantiate(obj.gameObject);
+            previewObject.projectionType = obj.projectionType;
+            previewObject.horizontalAxis = obj.horizontalAxis;
+            previewObject.verticalAxis = obj.verticalAxis;
+            previewObject.fieldOfView = obj.fieldOfView;
+            previewObject.orthographicSize = obj.orthographicSize;
+            CameraLookAtTarget(previewObject.gameObject.transform);
         }
 
         /// <summary>
@@ -147,7 +181,6 @@ namespace Quickon.Core
         {
             if (obj == null) return;
             UnityEngine.Object.DestroyImmediate(obj);
-            previewObject = null;
         }
 
         public void CameraLookAtTarget(Transform targetTransform)
@@ -166,7 +199,7 @@ namespace Quickon.Core
             if (isAuto)
             {
                 if (previewObject == null) return;
-                imageName = previewObject.name;
+                imageName = previewObject.gameObject.name;
             }
             else
             {
@@ -210,6 +243,47 @@ namespace Quickon.Core
             string path = $"{Config.ImgOutputPath}{imageName}{captureCount}.png";
             byte[] bytes = finalTexture.EncodeToPNG();
             File.WriteAllBytes(path, bytes);
+        }
+
+        private void SaveObjectCameraSettings(CaptureObject obj)
+        {
+            obj.projectionType = mainCamera.orthographic ? ProjectionType.Orthographic : ProjectionType.Perspective;
+            switch (obj.projectionType)
+            {
+                case ProjectionType.Perspective:
+                    {
+                        obj.fieldOfView = dataSourceSO.FieldOfView;
+                        break;
+                    }
+                case ProjectionType.Orthographic:
+                    {
+                        obj.orthographicSize = dataSourceSO.OrthographicSize;
+                        break;
+                    }
+            }
+            obj.horizontalAxis = dataSourceSO.HorizontalAxis;
+            obj.verticalAxis = dataSourceSO.VerticalAxis;
+        }
+
+        private void LoadObjectCameraSettings(CaptureObject obj)
+        {
+            switch (obj.projectionType)
+            {
+                case ProjectionType.Perspective:
+                    {
+                        mainCamera.orthographic = false;
+                        dataSourceSO.FieldOfView = obj.fieldOfView;
+                        break;
+                    }
+                case ProjectionType.Orthographic:
+                    {
+                        mainCamera.orthographic = true;
+                        dataSourceSO.OrthographicSize = obj.orthographicSize;
+                        break;
+                    }
+            }
+            dataSourceSO.HorizontalAxis = obj.horizontalAxis;
+            dataSourceSO.VerticalAxis = obj.verticalAxis;
         }
     }
 }
