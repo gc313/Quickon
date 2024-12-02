@@ -1,12 +1,16 @@
 using UnityEngine;
+using System;
 
-[CreateAssetMenu(fileName = "DataSourceSO", menuName = "Scriptable Objects/DataSourceSO")]
-public class DataSourceSO : ScriptableObject
+namespace Quickon.Core
 {
-    public int ImgWeight = 256;
-    public int ImgHeight = 256;
-    public float OrthographicSize;
-    public float FieldOfView;
-    public float HorizontalAxis;
-    public float VerticalAxis;
+    [CreateAssetMenu(fileName = "DataSourceSO", menuName = "Scriptable Objects/DataSourceSO")]
+    internal class DataSourceSO : ScriptableObject
+    {
+        [SerializeField] internal int ImgWeight = 256;
+        [SerializeField] internal int ImgHeight = 256;
+        [SerializeField] internal float OrthographicSize;
+        [SerializeField] internal float FieldOfView;
+        [SerializeField] internal float HorizontalAxis;
+        [SerializeField] internal float VerticalAxis;
+    }
 }

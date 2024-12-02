@@ -1,28 +1,37 @@
 using System.Collections.Generic;
-using Quickon.Core;
 using UnityEngine;
+using System;
 
-[CreateAssetMenu(fileName = "CaptureObjSO", menuName = "Scriptable Objects/CaptureObjSO")]
-public class CaptureObjSO : ScriptableObject
+namespace Quickon.Core
 {
-    public List<CaptureObject> CaptureObjects = new List<CaptureObject>();
+    [CreateAssetMenu(fileName = "CaptureObjSO", menuName = "Scriptable Objects/CaptureObjSO")]
+    internal class CaptureObjSO : ScriptableObject
+    {
+        [SerializeField] internal List<CaptureObject> CaptureObjects = new List<CaptureObject>();
+    }
 }
 
-[System.Serializable]
-public class CaptureObject
+namespace Quickon.Core
 {
-    public GameObject gameObject;
-    public ProjectionType projectionType;
-    public float horizontalAxis;
-    public float verticalAxis;
-    public float fieldOfView;
-    public float orthographicSize;
+    [Serializable]
+    internal class CaptureObject
+    {
+        [SerializeField] internal GameObject gameObject;
+        [SerializeField] internal ProjectionType projectionType;
+        [SerializeField] internal float horizontalAxis;
+        [SerializeField] internal float verticalAxis;
+        [SerializeField] internal float fieldOfView;
+        [SerializeField] internal float orthographicSize;
+    }
 }
 
-
-public enum ProjectionType
+namespace Quickon.Core
 {
-    None,
-    Perspective,
-    Orthographic
+    [Serializable]
+    internal enum ProjectionType
+    {
+        None,
+        Perspective,
+        Orthographic
+    }
 }

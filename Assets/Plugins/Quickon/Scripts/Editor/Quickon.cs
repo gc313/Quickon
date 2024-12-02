@@ -5,12 +5,10 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Quickon.Core;
 using Unity.Cinemachine;
-using Unity.VisualScripting;
-using System.Collections.Generic;
 
 namespace Quickon.Editor
 {
-    public class Quickon : EditorWindow
+    internal class Quickon : EditorWindow
     {
         // 字段
         [SerializeField] private VisualTreeAsset visualTreeAsset;
@@ -32,14 +30,9 @@ namespace Quickon.Editor
         private Toggle previewToggle, transparentToggle;
         private Button previousPreviewButton, nextPreviewButton, autoCaptureButton, manualCaptureButton;
 
-        // 构造函数
-        public Quickon()
-        {
-        }
-
         // 方法
-        [MenuItem("Window/Quickon")]
-        public static void ShowExample()
+        [MenuItem("Tools/Quickon")]
+        internal static void ShowExample()
         {
             // 显示Quickon窗口
             Quickon wnd = GetWindow<Quickon>();
@@ -61,7 +54,7 @@ namespace Quickon.Editor
             EditorApplication.update -= UpdateCameraPanel;
         }
 
-        public void CreateGUI()
+        internal void CreateGUI()
         {
             // 创建GUI界面
             root = rootVisualElement;
@@ -79,7 +72,7 @@ namespace Quickon.Editor
             root.Add(postPanelElement);
 
             transparentToggle = postPanelElement.Q<Toggle>("RemoveBackground_Toggle");
-            transparentToggle.RegisterCallback<ChangeEvent<bool>>(e => { Config.IsTransparent = e.newValue; });
+            transparentToggle.RegisterCallback<ChangeEvent<bool>>(e => { Core.QuickonConfig.IsTransparent = e.newValue; });
         }
 
         private void DrawImageSizeField()
@@ -97,11 +90,11 @@ namespace Quickon.Editor
             // 监听控件值变化事件
             previewToggle.RegisterCallback<ChangeEvent<bool>>(e =>
             {
-                Config.IsPreview = e.newValue;
-                captureHelper.ToggleObjectPreview(captureObject.CaptureObjects, Config.IsPreview);
+                Core.QuickonConfig.IsPreview = e.newValue;
+                captureHelper.ToggleObjectPreview(captureObject.CaptureObjects, Core.QuickonConfig.IsPreview);
             });
-            previousPreviewButton.clicked += () => { captureHelper.PreviousObjectPreview(captureObject.CaptureObjects, Config.IsPreview); };
-            nextPreviewButton.clicked += () => { captureHelper.NextObjectPreview(captureObject.CaptureObjects, Config.IsPreview); };
+            previousPreviewButton.clicked += () => { captureHelper.PreviousObjectPreview(captureObject.CaptureObjects, Core.QuickonConfig.IsPreview); };
+            nextPreviewButton.clicked += () => { captureHelper.NextObjectPreview(captureObject.CaptureObjects, Core.QuickonConfig.IsPreview); };
             autoCaptureButton.clicked += () => { captureHelper.PlaceObjectsAndCapture(captureObject.CaptureObjects); };
             manualCaptureButton.clicked += () => { captureHelper.CaptureImage(false); };
         }
@@ -116,12 +109,12 @@ namespace Quickon.Editor
             root.Add(cameraField);
 
             // 监听相机字段变化
-            cameraField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(e => { RegisterCameraEvent(e.newValue); });
+            cameraField.RegisterCallback<ChangeEvent<GameObject>>(e => { RegisterCameraEvent(e.newValue); });
 
             DrawCameraPanel();
         }
 
-        private UnityEngine.Object SetCaptureCamera()
+        private GameObject SetCaptureCamera()
         {
             // 设置捕获相机
             var newCamera = GameObject.FindWithTag("CaptureCamera");
@@ -139,7 +132,7 @@ namespace Quickon.Editor
             return newCamera;
         }
 
-        private void RegisterCameraEvent(UnityEngine.Object cameraObj)
+        private void RegisterCameraEvent(GameObject cameraObj)
         {
             // 注册相机事件
             camera = cameraObj.GetComponent<CinemachineCamera>();
@@ -195,12 +188,12 @@ namespace Quickon.Editor
             // 处理相机投影选择
             switch (arg)
             {
-                case Config.Orthographic:
+                case Core.QuickonConfig.Orthographic:
                     Camera.main.orthographic = true;
-                    return Config.Orthographic;
-                case Config.Perspective:
+                    return Core.QuickonConfig.Orthographic;
+                case Core.QuickonConfig.Perspective:
                     Camera.main.orthographic = false;
-                    return Config.Perspective;
+                    return Core.QuickonConfig.Perspective;
             }
             return "";
         }
@@ -220,13 +213,13 @@ namespace Quickon.Editor
             if (camera == null || orbitalFollow == null) return;
             if (isCameraOrthographic)
             {
-                cameraProjection.SetValueWithoutNotify(Config.Orthographic);
+                cameraProjection.SetValueWithoutNotify(Core.QuickonConfig.Orthographic);
                 orthographicField.style.display = DisplayStyle.Flex;
                 perspectiveField.style.display = DisplayStyle.None;
             }
             else
             {
-                cameraProjection.SetValueWithoutNotify(Config.Perspective);
+                cameraProjection.SetValueWithoutNotify(Core.QuickonConfig.Perspective);
                 perspectiveField.style.display = DisplayStyle.Flex;
                 orthographicField.style.display = DisplayStyle.None;
             }

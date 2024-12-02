@@ -1,0 +1,6 @@
+{
+	"name": "Quickon",
+	"references": [
+		"Unity.Cinemachine"
+	]
+}

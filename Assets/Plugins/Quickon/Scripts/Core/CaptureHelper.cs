@@ -3,12 +3,11 @@ using System.IO;
 using System.Collections.Generic;
 using System;
 using Unity.Cinemachine;
-using Unity.VisualScripting;
 using System.Threading.Tasks;
 
 namespace Quickon.Core
 {
-    public class CaptureHelper
+    internal class CaptureHelper
     {
         // 字段
         private Camera mainCamera;
@@ -21,7 +20,7 @@ namespace Quickon.Core
         private DataSourceSO dataSourceSO;
 
         // 初始化摄像机
-        public void InitializeHelper(UnityEngine.Object cameraObj, DataSourceSO dataSourceSO)
+        internal void InitializeHelper(GameObject cameraObj, DataSourceSO dataSourceSO)
         {
             if (mainCamera == null)
             {
@@ -42,7 +41,7 @@ namespace Quickon.Core
         }
 
         // 放置对象并拍照
-        public async void PlaceObjectsAndCapture(List<CaptureObject> captureObjects)
+        internal async void PlaceObjectsAndCapture(List<CaptureObject> captureObjects)
         {
             if (captureObjects == null || captureObjects.Count == 0) return;
             captureCount = 0;
@@ -64,7 +63,7 @@ namespace Quickon.Core
         }
 
         // 切换预览模式
-        public void ToggleObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
+        internal void ToggleObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
         {
             if (captureObjects == null || captureObjects.Count == 0) return;
             if (isPreview)
@@ -91,7 +90,7 @@ namespace Quickon.Core
         }
 
         // 上一个预览对象
-        public void PreviousObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
+        internal void PreviousObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
         {
             if (!isPreview || captureObjects == null || captureObjects.Count == 0) return;
 
@@ -105,7 +104,7 @@ namespace Quickon.Core
         }
 
         // 下一个预览对象
-        public void NextObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
+        internal void NextObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
         {
             if (!isPreview || captureObjects == null || captureObjects.Count == 0) return;
 
@@ -119,7 +118,7 @@ namespace Quickon.Core
         }
 
         // 在场景中实例化对象
-        public void InstantiateObjectToScene(CaptureObject obj)
+        internal void InstantiateObjectToScene(CaptureObject obj)
         {
             if (obj == null) return;
             if (obj.projectionType != ProjectionType.None)
@@ -130,7 +129,7 @@ namespace Quickon.Core
             {
                 SaveObjectCameraSettings(obj);
             }
-            previewObject.gameObject = UnityEngine.Object.Instantiate(obj.gameObject);
+            previewObject.gameObject = GameObject.Instantiate(obj.gameObject);
             previewObject.projectionType = obj.projectionType;
             previewObject.horizontalAxis = obj.horizontalAxis;
             previewObject.verticalAxis = obj.verticalAxis;
@@ -140,21 +139,21 @@ namespace Quickon.Core
         }
 
         // 从场景中立即销毁对象
-        public void DestroyObjectFromScene(GameObject obj)
+        internal void DestroyObjectFromScene(GameObject obj)
         {
             if (obj == null) return;
-            UnityEngine.Object.DestroyImmediate(obj);
+            GameObject.DestroyImmediate(obj);
         }
 
         // 设置摄像机看向目标
-        public void CameraLookAtTarget(Transform targetTransform)
+        internal void CameraLookAtTarget(Transform targetTransform)
         {
             if (targetTransform == null) return;
             camera.Follow = targetTransform;
         }
 
         // 拍照
-        public void CaptureImage(bool isAuto)
+        internal void CaptureImage(bool isAuto)
         {
             if (mainCamera == null || camera == null || orbitalFollow == null) return;
             string imageName;
@@ -203,7 +202,7 @@ namespace Quickon.Core
         private void SaveImage(string imageName, Texture2D finalTexture)
         {
             captureCount++;
-            string path = $"{Config.ImgOutputPath}{imageName}{captureCount}.png";
+            string path = $"{QuickonConfig.ImgOutputPath}{imageName}{captureCount}.png";
             byte[] bytes = finalTexture.EncodeToPNG();
             File.WriteAllBytes(path, bytes);
         }
