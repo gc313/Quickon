@@ -10,6 +10,7 @@ namespace Quickon.Core
 {
     public class CaptureHelper
     {
+        // 字段
         private Camera mainCamera;
         private CinemachineOrbitalFollow orbitalFollow;
         private CinemachineCamera camera;
@@ -19,9 +20,7 @@ namespace Quickon.Core
         private PostProcessing postProcessing;
         private DataSourceSO dataSourceSO;
 
-        /// <summary>
-        /// 初始化摄像机
-        /// </summary>
+        // 初始化摄像机
         public void InitializeHelper(UnityEngine.Object cameraObj, DataSourceSO dataSourceSO)
         {
             if (mainCamera == null)
@@ -42,10 +41,7 @@ namespace Quickon.Core
             // Debug.Log("Initialized!");
         }
 
-        /// <summary>
-        /// 放置对象并拍照
-        /// </summary>
-        /// <param name="captureObjects">要拍摄的对象列表</param>
+        // 放置对象并拍照
         public async void PlaceObjectsAndCapture(List<CaptureObject> captureObjects)
         {
             if (captureObjects == null || captureObjects.Count == 0) return;
@@ -67,26 +63,7 @@ namespace Quickon.Core
             Debug.Log("Capture Done!");
         }
 
-        private void WaitForEndOfFrame()
-        {
-            // 这里使用了一个简单的等待一帧的方法
-            // 如果需要更复杂的逻辑，可以考虑使用其他方法
-            while (!Application.isEditor && !Application.isPlaying)
-            {
-                // 确保在编辑器模式下也能正常工作
-                return;
-            }
-            while (Time.frameCount == Time.frameCount - 1)
-            {
-                // 等待当前帧结束
-            }
-        }
-
-        /// <summary>
-        /// 切换预览对象
-        /// </summary>
-        /// <param name="captureObjects">要预览的对象列表</param>
-        /// <param name="isPreview">是否开启预览</param>
+        // 切换预览模式
         public void ToggleObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
         {
             if (captureObjects == null || captureObjects.Count == 0) return;
@@ -113,11 +90,7 @@ namespace Quickon.Core
             }
         }
 
-        /// <summary>
-        /// 上一个预览对象
-        /// </summary>
-        /// <param name="captureObjects">要预览的对象列表</param>
-        /// <param name="isPreview">是否开启预览</param>
+        // 上一个预览对象
         public void PreviousObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
         {
             if (!isPreview || captureObjects == null || captureObjects.Count == 0) return;
@@ -131,11 +104,7 @@ namespace Quickon.Core
             }
         }
 
-        /// <summary>
-        /// 下一个预览对象
-        /// </summary>
-        /// <param name="captureObjects">要预览的对象列表</param>
-        /// <param name="isPreview">是否开启预览</param>
+        // 下一个预览对象
         public void NextObjectPreview(List<CaptureObject> captureObjects, bool isPreview)
         {
             if (!isPreview || captureObjects == null || captureObjects.Count == 0) return;
@@ -149,10 +118,7 @@ namespace Quickon.Core
             }
         }
 
-        /// <summary>
-        /// 在场景中实例化对象
-        /// </summary>
-        /// <param name="obj">要实例化的对象</param>
+        // 在场景中实例化对象
         public void InstantiateObjectToScene(CaptureObject obj)
         {
             if (obj == null) return;
@@ -173,25 +139,21 @@ namespace Quickon.Core
             CameraLookAtTarget(previewObject.gameObject.transform);
         }
 
-        /// <summary>
-        /// 从场景中立即销毁对象
-        /// </summary>
-        /// <param name="obj">要销毁的对象</param>
+        // 从场景中立即销毁对象
         public void DestroyObjectFromScene(GameObject obj)
         {
             if (obj == null) return;
             UnityEngine.Object.DestroyImmediate(obj);
         }
 
+        // 设置摄像机看向目标
         public void CameraLookAtTarget(Transform targetTransform)
         {
             if (targetTransform == null) return;
             camera.Follow = targetTransform;
         }
 
-        /// <summary>
-        /// 拍照
-        /// </summary>
+        // 拍照
         public void CaptureImage(bool isAuto)
         {
             if (mainCamera == null || camera == null || orbitalFollow == null) return;
@@ -237,6 +199,7 @@ namespace Quickon.Core
             UnityEngine.Object.DestroyImmediate(renderTexture);
         }
 
+        // 保存图像
         private void SaveImage(string imageName, Texture2D finalTexture)
         {
             captureCount++;
@@ -245,6 +208,7 @@ namespace Quickon.Core
             File.WriteAllBytes(path, bytes);
         }
 
+        // 保存对象摄像机设置
         private void SaveObjectCameraSettings(CaptureObject obj)
         {
             obj.projectionType = mainCamera.orthographic ? ProjectionType.Orthographic : ProjectionType.Perspective;
@@ -265,6 +229,7 @@ namespace Quickon.Core
             obj.verticalAxis = dataSourceSO.VerticalAxis;
         }
 
+        // 加载对象摄像机设置
         private void LoadObjectCameraSettings(CaptureObject obj)
         {
             switch (obj.projectionType)

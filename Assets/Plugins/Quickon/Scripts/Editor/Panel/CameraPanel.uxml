@@ -1,5 +1,8 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Plugins/Quickon/Scripts/Editor/CameraPanel.uss?fileID=7433441132597879392&amp;guid=dfce5314a70885441aa2889d32b1dfd2&amp;type=3#CameraPanel" />
+    <engine:VisualElement style="flex-grow: 0; height: 50px; justify-content: space-around;">
+        <engine:DropdownField label="Projection" choices="Orthographic,Perspective" index="0" name="CameraProjection" />
+    </engine:VisualElement>
     <engine:VisualElement name="Orthographic" style="flex-grow: 0; height: 50px; align-self: auto;">
         <engine:FloatField label="Orthographic Size" value="-360" max-length="6" name="OrthographicSize_Value" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" data-source-path="camera">
             <Bindings>
