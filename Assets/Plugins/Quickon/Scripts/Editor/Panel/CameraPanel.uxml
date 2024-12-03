@@ -51,4 +51,11 @@
             </Bindings>
         </engine:Slider>
     </engine:VisualElement>
+    <engine:VisualElement name="TargetOffset" style="flex-grow: 0; height: 50px; align-self: auto; align-content: auto;">
+        <engine:Vector3Field label="TargetOffset" name="TargetOffset_Vector3">
+            <Bindings>
+                <engine:DataBinding property="value" data-source-path="TargetOffset" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" />
+            </Bindings>
+        </engine:Vector3Field>
+    </engine:VisualElement>
 </engine:UXML>

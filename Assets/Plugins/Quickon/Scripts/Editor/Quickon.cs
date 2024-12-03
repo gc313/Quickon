@@ -19,8 +19,9 @@ namespace Quickon.Editor
         private InstallRequiredPackages installRequired;
         private CaptureHelper captureHelper;
         private CaptureObjSO captureObject;
-        private CinemachineCamera camera;
+        private CinemachineCamera cinemachineCamera;
         private CinemachineOrbitalFollow orbitalFollow;
+        private CinemachineRotationComposer rotationComposer;
         private bool isCameraOrthographic;
 
         private VisualElement root, mainElement, cameraPanelElement, postPanelElement, perspectiveField, orthographicField;
@@ -30,6 +31,7 @@ namespace Quickon.Editor
         private Slider orthographicSlider, fieldOfViewSlider, horizontalAxisSlider, verticalAxisSlider;
         private Toggle previewToggle, transparentToggle;
         private Button previousPreviewButton, nextPreviewButton, autoCaptureButton, manualCaptureButton;
+        private Vector3Field targetOffsetField;
 
         private VisualElement loadingPanel;
         private Label loadingLabel;
@@ -157,8 +159,9 @@ namespace Quickon.Editor
         private void RegisterCameraEvent(GameObject cameraObj)
         {
             // 注册相机事件
-            camera = cameraObj.GetComponent<CinemachineCamera>();
+            cinemachineCamera = cameraObj.GetComponent<CinemachineCamera>();
             orbitalFollow = cameraObj.GetComponent<CinemachineOrbitalFollow>();
+            rotationComposer = cameraObj.GetComponent<CinemachineRotationComposer>();
             // 相机每次变化时重新注册更新事件
             EditorApplication.update -= UpdateCameraFromDataSource;
             EditorApplication.update += UpdateCameraFromDataSource;
@@ -180,14 +183,17 @@ namespace Quickon.Editor
             verticalAxisField = cameraPanelElement.Q<FloatField>("VerticalAxis_Value");
             verticalAxisSlider = cameraPanelElement.Q<Slider>("VerticalAxis_Slider");
 
-            orthographicSizeField.SetValueWithoutNotify(camera.Lens.OrthographicSize);
-            orthographicSlider.SetValueWithoutNotify(camera.Lens.OrthographicSize);
-            fieldOfViewField.SetValueWithoutNotify(camera.Lens.FieldOfView);
-            fieldOfViewSlider.SetValueWithoutNotify(camera.Lens.FieldOfView);
+            targetOffsetField = cameraPanelElement.Q<Vector3Field>("TargetOffset_Vector3");
+
+            orthographicSizeField.SetValueWithoutNotify(cinemachineCamera.Lens.OrthographicSize);
+            orthographicSlider.SetValueWithoutNotify(cinemachineCamera.Lens.OrthographicSize);
+            fieldOfViewField.SetValueWithoutNotify(cinemachineCamera.Lens.FieldOfView);
+            fieldOfViewSlider.SetValueWithoutNotify(cinemachineCamera.Lens.FieldOfView);
             horizontalAxisField.SetValueWithoutNotify(orbitalFollow.HorizontalAxis.Value);
             horizontalAxisSlider.SetValueWithoutNotify(orbitalFollow.HorizontalAxis.Value);
             verticalAxisField.SetValueWithoutNotify(orbitalFollow.VerticalAxis.Value);
             verticalAxisSlider.SetValueWithoutNotify(orbitalFollow.VerticalAxis.Value);
+            targetOffsetField.SetValueWithoutNotify(rotationComposer.TargetOffset);
         }
 
         private void DrawCameraPanel()
@@ -223,7 +229,7 @@ namespace Quickon.Editor
         private void UpdateCameraPanel()
         {
             // 更新相机面板
-            if (isCameraOrthographic == Camera.main.orthographic) return;
+            //if (isCameraOrthographic == Camera.main.orthographic) return;
             isCameraOrthographic = Camera.main.orthographic;
             CameraProjectionChoice();
             cameraPanelElement.MarkDirtyRepaint();
@@ -232,7 +238,7 @@ namespace Quickon.Editor
         private void CameraProjectionChoice()
         {
             // 根据相机投影选择显示不同的UI元素
-            if (camera == null || orbitalFollow == null) return;
+            if (cinemachineCamera == null || orbitalFollow == null) return;
             if (isCameraOrthographic)
             {
                 cameraProjection.SetValueWithoutNotify(Core.QuickonConfig.Orthographic);
@@ -250,13 +256,15 @@ namespace Quickon.Editor
         private void UpdateCameraFromDataSource()
         {
             // 从数据源更新相机设置
-            if (camera == null || orbitalFollow == null) return;
-            camera.Lens.OrthographicSize = dataSourceSO.OrthographicSize;
-            camera.Lens.FieldOfView = dataSourceSO.FieldOfView;
+            if (cinemachineCamera == null || orbitalFollow == null) return;
+            cinemachineCamera.Lens.OrthographicSize = dataSourceSO.OrthographicSize;
+            cinemachineCamera.Lens.FieldOfView = dataSourceSO.FieldOfView;
             orbitalFollow.HorizontalAxis.Value = dataSourceSO.HorizontalAxis;
             orbitalFollow.VerticalAxis.Value = dataSourceSO.VerticalAxis;
-            EditorUtility.SetDirty(camera);
+            rotationComposer.TargetOffset = dataSourceSO.TargetOffset;
+            EditorUtility.SetDirty(cinemachineCamera);
             EditorUtility.SetDirty(orbitalFollow);
+            EditorUtility.SetDirty(rotationComposer);
         }
 
         private void DrawCaptureObjectList()

@@ -40,7 +40,7 @@ namespace Quickon.Core
                 }
                 else
                 {
-                    Debug.Log($"Package already installed: {packageName}");
+                    // Debug.Log($"Package already installed: {packageName}");
                 }
             }
         }

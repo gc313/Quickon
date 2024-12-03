@@ -12,5 +12,6 @@ namespace Quickon.Core
         [SerializeField] internal float FieldOfView;
         [SerializeField] internal float HorizontalAxis;
         [SerializeField] internal float VerticalAxis;
+        [SerializeField] internal Vector3 TargetOffset = new Vector3(0, 0, 0);
     }
 }

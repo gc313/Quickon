@@ -11,8 +11,9 @@ namespace Quickon.Core
     {
         // 字段
         private Camera mainCamera;
+        private CinemachineCamera cinemachineCamera;
         private CinemachineOrbitalFollow orbitalFollow;
-        private CinemachineCamera camera;
+        private CinemachineRotationComposer rotationComposer;
         private int captureCount;
         private int currentPreviewIndex;
         private CaptureObject previewObject;
@@ -31,8 +32,9 @@ namespace Quickon.Core
                 }
             }
             this.dataSourceSO = dataSourceSO;
-            camera = cameraObj.GetComponent<CinemachineCamera>();
+            cinemachineCamera = cameraObj.GetComponent<CinemachineCamera>();
             orbitalFollow = cameraObj.GetComponent<CinemachineOrbitalFollow>();
+            rotationComposer = cameraObj.GetComponent<CinemachineRotationComposer>();
 
             postProcessing = new PostProcessing();
             previewObject = new CaptureObject();
@@ -149,13 +151,14 @@ namespace Quickon.Core
         internal void CameraLookAtTarget(Transform targetTransform)
         {
             if (targetTransform == null) return;
-            camera.Follow = targetTransform;
+            cinemachineCamera.Follow = targetTransform;
+            rotationComposer.TargetOffset = dataSourceSO.TargetOffset;
         }
 
         // 拍照
         internal void CaptureImage(bool isAuto)
         {
-            if (mainCamera == null || camera == null || orbitalFollow == null) return;
+            if (mainCamera == null || cinemachineCamera == null || orbitalFollow == null) return;
             string imageName;
             if (isAuto)
             {
@@ -226,6 +229,7 @@ namespace Quickon.Core
             }
             obj.horizontalAxis = dataSourceSO.HorizontalAxis;
             obj.verticalAxis = dataSourceSO.VerticalAxis;
+            obj.offset = dataSourceSO.TargetOffset;
         }
 
         // 加载对象摄像机设置
@@ -248,6 +252,7 @@ namespace Quickon.Core
             }
             dataSourceSO.HorizontalAxis = obj.horizontalAxis;
             dataSourceSO.VerticalAxis = obj.verticalAxis;
+            dataSourceSO.TargetOffset = obj.offset;
         }
     }
 }

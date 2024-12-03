@@ -16,3 +16,8 @@ VisualElement > #VisualElement > .unity-float-field {
 Slider {
     flex-grow: 1;
 }
+
+#TargetOffset > .unity-vector3-field > .unity-vector3-field__input {
+    flex-direction: row;
+    justify-content: space-evenly;
+}

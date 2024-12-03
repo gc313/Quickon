@@ -22,6 +22,7 @@ namespace Quickon.Core
         [SerializeField] internal float verticalAxis;
         [SerializeField] internal float fieldOfView;
         [SerializeField] internal float orthographicSize;
+        [SerializeField] internal Vector3 offset;
     }
 }
 
