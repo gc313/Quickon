@@ -5,28 +5,19 @@ namespace Quickon.Core
     internal class OnDrawGizmo : MonoBehaviour
     {
         private DataSourceSO dataSourceSO;
-        private Camera m_Camera;
-        private void OnEnable()
-        {
-            dataSourceSO = Resources.Load<DataSourceSO>("DataSource/DataSource");
-            if (dataSourceSO == null)
-            {
-                Debug.LogError("Failed to load DataSourceSO from Resources/DataSource/DataSource");
-            }
-            Debug.Log("OnDrawGizmo Awake");
-        }
+        private Camera mainCamera;
 
         private void OnDrawGizmos()
         {
-            if (m_Camera == null)
+            if (mainCamera == null || dataSourceSO == null)
             {
-                m_Camera = Camera.main;
-                if (m_Camera == null)
+                mainCamera = Camera.main;
+                dataSourceSO = Resources.Load<DataSourceSO>("DataSource/DataSource");
+                if (mainCamera == null|| dataSourceSO == null)
                 {
                     return;
                 }
             }
-            if (dataSourceSO == null) return;
 
             int width = dataSourceSO.ImgWeight;
             int height = dataSourceSO.ImgHeight;
@@ -46,19 +37,19 @@ namespace Quickon.Core
             /// margin = (1 - 1 / 分辨率比例 * 图像宽高比) * 0.5
 
             float picAspect = (float)width / (float)height;
-            float screenAspect = m_Camera.aspect;  // 16:9 的比例为 1.777778，4:3 的比例为 1.333333
+            float screenAspect = mainCamera.aspect;  // 16:9 的比例为 1.777778，4:3 的比例为 1.333333
 
             float leftMargin, rightMargin;
             leftMargin = (1 - 1 / screenAspect * picAspect) * 0.5f;
             rightMargin = 1 - leftMargin;
 
-            float nearClipPlane = m_Camera.nearClipPlane + 0.01f;
+            float nearClipPlane = mainCamera.nearClipPlane + 0.01f;
 
             // 计算边界点
-            Vector3 bottomLeft = m_Camera.ViewportToWorldPoint(new Vector3(leftMargin, 0.001f, nearClipPlane));
-            Vector3 topRight = m_Camera.ViewportToWorldPoint(new Vector3(rightMargin, 0.999f, nearClipPlane));
-            Vector3 bottomRight = m_Camera.ViewportToWorldPoint(new Vector3(rightMargin, 0.001f, nearClipPlane));
-            Vector3 topLeft = m_Camera.ViewportToWorldPoint(new Vector3(leftMargin, 0.999f, nearClipPlane));
+            Vector3 bottomLeft = mainCamera.ViewportToWorldPoint(new Vector3(leftMargin, 0.001f, nearClipPlane));
+            Vector3 topRight = mainCamera.ViewportToWorldPoint(new Vector3(rightMargin, 0.999f, nearClipPlane));
+            Vector3 bottomRight = mainCamera.ViewportToWorldPoint(new Vector3(rightMargin, 0.001f, nearClipPlane));
+            Vector3 topLeft = mainCamera.ViewportToWorldPoint(new Vector3(leftMargin, 0.999f, nearClipPlane));
 
             // 绘制方框
             Gizmos.color = Color.green;

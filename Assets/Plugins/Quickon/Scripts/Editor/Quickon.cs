@@ -150,7 +150,7 @@ namespace Quickon.Editor
                 newCamera.AddComponent<CinemachineRotationComposer>();
                 newCamera.AddComponent<CinemachineFreeLookModifier>();
                 newCamera.AddComponent<CinemachineInputAxisController>();
-                //newCamera.AddComponent<OnDrawGizmo>();
+                newCamera.AddComponent<OnDrawGizmo>();
             }
             RegisterCameraEvent(newCamera);
             return newCamera;
