@@ -5,14 +5,13 @@ namespace Quickon.Core
     internal class OnDrawGizmo : MonoBehaviour
     {
         [SerializeField] DataSourceSO dataSourceSO;
-        private Camera m_Camera; // 声明变量
+        private Camera m_Camera;
 
-        // 绘制Gizmo
         private void OnDrawGizmos()
         {
             if (m_Camera == null)
             {
-                m_Camera = Camera.main; // 尝试在编辑器模式下获取主摄像机
+                m_Camera = Camera.main;
                 if (m_Camera == null)
                 {
                     return;
@@ -43,7 +42,6 @@ namespace Quickon.Core
             leftMargin = (1 - 1 / screenAspect * picAspect) * 0.5f;
             rightMargin = 1 - leftMargin;
 
-            // 计算摄像机视口的边界
             float nearClipPlane = m_Camera.nearClipPlane + 0.01f;
 
             // 计算边界点

@@ -9,7 +9,6 @@ namespace Quickon.Core
 {
     internal class CaptureHelper
     {
-        // 字段
         private Camera mainCamera;
         private CinemachineCamera cinemachineCamera;
         private CinemachineOrbitalFollow orbitalFollow;
@@ -20,7 +19,6 @@ namespace Quickon.Core
         private PostProcessing postProcessing;
         private DataSourceSO dataSourceSO;
 
-        // 初始化摄像机
         internal void InitializeHelper(GameObject cameraObj, DataSourceSO dataSourceSO)
         {
             if (mainCamera == null)
@@ -196,7 +194,6 @@ namespace Quickon.Core
             mainCamera.targetTexture = null;
             RenderTexture.active = null;
 
-            // 使用DestroyImmediate来销毁对象
             UnityEngine.Object.DestroyImmediate(finalTexture);
             UnityEngine.Object.DestroyImmediate(renderTexture);
         }

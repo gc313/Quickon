@@ -10,7 +10,6 @@ namespace Quickon.Editor
 {
     internal class Quickon : EditorWindow
     {
-        // 字段
         [SerializeField] private VisualTreeAsset visualTreeAsset;
         [SerializeField] private VisualTreeAsset cameraPanel;
         [SerializeField] private VisualTreeAsset postProcessingPanel;
@@ -36,18 +35,15 @@ namespace Quickon.Editor
         private VisualElement loadingPanel;
         private Label loadingLabel;
 
-        // 方法
         [MenuItem("Tools/Quickon")]
         internal static void ShowWindow()
         {
-            // 显示Quickon窗口
             Quickon wnd = GetWindow<Quickon>();
             wnd.titleContent = new GUIContent("Quickon");
         }
 
         private async void OnEnable()
         {
-            // 启用窗口时初始化
             root = rootVisualElement;
 
             captureHelper = new CaptureHelper();
@@ -63,7 +59,6 @@ namespace Quickon.Editor
 
         private void OnDisable()
         {
-            // 禁用窗口时清理
             EditorApplication.update -= UpdateCameraFromDataSource;
             EditorApplication.update -= UpdateCameraPanel;
         }
@@ -229,7 +224,6 @@ namespace Quickon.Editor
         private void UpdateCameraPanel()
         {
             // 更新相机面板
-            //if (isCameraOrthographic == Camera.main.orthographic) return;
             isCameraOrthographic = Camera.main.orthographic;
             CameraProjectionChoice();
             cameraPanelElement.MarkDirtyRepaint();

@@ -5,10 +5,10 @@ namespace Quickon.Core
 {
     internal class PostProcessing
     {
-        RenderTexture renderTexture;
-        Camera mainCamera;
-        Rect readRect;
-        int width, height;
+        private RenderTexture renderTexture;
+        private Camera mainCamera;
+        private Rect readRect;
+        private int width, height;
 
         internal void Stack(RenderTexture renderTexture, Camera mainCamera, Rect rect, int width, int height)
         {
