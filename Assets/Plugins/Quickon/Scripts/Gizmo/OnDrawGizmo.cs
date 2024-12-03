@@ -4,8 +4,17 @@ namespace Quickon.Core
 {
     internal class OnDrawGizmo : MonoBehaviour
     {
-        [SerializeField] DataSourceSO dataSourceSO;
+        private DataSourceSO dataSourceSO;
         private Camera m_Camera;
+        private void OnEnable()
+        {
+            dataSourceSO = Resources.Load<DataSourceSO>("DataSource/DataSource");
+            if (dataSourceSO == null)
+            {
+                Debug.LogError("Failed to load DataSourceSO from Resources/DataSource/DataSource");
+            }
+            Debug.Log("OnDrawGizmo Awake");
+        }
 
         private void OnDrawGizmos()
         {
@@ -17,6 +26,7 @@ namespace Quickon.Core
                     return;
                 }
             }
+            if (dataSourceSO == null) return;
 
             int width = dataSourceSO.ImgWeight;
             int height = dataSourceSO.ImgHeight;

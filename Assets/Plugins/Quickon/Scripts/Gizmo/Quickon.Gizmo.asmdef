@@ -1,8 +1,8 @@
 {
-    "name": "Quickon.Core",
+    "name": "Quickon.Gizmo",
     "rootNamespace": "",
     "references": [
-        "Unity.Cinemachine",
+        "Quickon.Core",
         "Qucikon.SO"
     ],
     "includePlatforms": [],

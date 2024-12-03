@@ -10,10 +10,10 @@ namespace Quickon.Editor
 {
     internal class Quickon : EditorWindow
     {
-        [SerializeField] private VisualTreeAsset visualTreeAsset;
-        [SerializeField] private VisualTreeAsset cameraPanel;
-        [SerializeField] private VisualTreeAsset postProcessingPanel;
-        [SerializeField] private DataSourceSO dataSourceSO;
+        private VisualTreeAsset visualTreeAsset;
+        private VisualTreeAsset cameraPanel;
+        private VisualTreeAsset postProcessingPanel;
+        private DataSourceSO dataSourceSO;
 
         private InstallRequiredPackages installRequired;
         private CaptureHelper captureHelper;
@@ -45,6 +45,10 @@ namespace Quickon.Editor
         private async void OnEnable()
         {
             root = rootVisualElement;
+            dataSourceSO = Resources.Load<DataSourceSO>("DataSource/DataSource");
+            visualTreeAsset = Resources.Load<VisualTreeAsset>("UI/Quickon");
+            cameraPanel = Resources.Load<VisualTreeAsset>("UI/CameraPanel");
+            postProcessingPanel = Resources.Load<VisualTreeAsset>("UI/PostProcessingPanel");
 
             captureHelper = new CaptureHelper();
             installRequired = new InstallRequiredPackages();
@@ -146,6 +150,7 @@ namespace Quickon.Editor
                 newCamera.AddComponent<CinemachineRotationComposer>();
                 newCamera.AddComponent<CinemachineFreeLookModifier>();
                 newCamera.AddComponent<CinemachineInputAxisController>();
+                //newCamera.AddComponent<OnDrawGizmo>();
             }
             RegisterCameraEvent(newCamera);
             return newCamera;
@@ -250,7 +255,7 @@ namespace Quickon.Editor
         private void UpdateCameraFromDataSource()
         {
             // 从数据源更新相机设置
-            if (cinemachineCamera == null || orbitalFollow == null) return;
+            if (cinemachineCamera == null || orbitalFollow == null || dataSourceSO == null) return;
             cinemachineCamera.Lens.OrthographicSize = dataSourceSO.OrthographicSize;
             cinemachineCamera.Lens.FieldOfView = dataSourceSO.FieldOfView;
             orbitalFollow.HorizontalAxis.Value = dataSourceSO.HorizontalAxis;
