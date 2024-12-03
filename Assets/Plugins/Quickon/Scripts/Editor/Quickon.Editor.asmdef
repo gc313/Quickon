@@ -1,8 +1,10 @@
 {
-    "name": "Quickon",
+    "name": "Quickon.Editor",
     "rootNamespace": "",
     "references": [
-        "Unity.Cinemachine"
+        "Unity.Cinemachine",
+        "Quickon.Core",
+        "Quickon"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -11,12 +13,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "Select...",
-            "expression": "",
-            "define": ""
-        }
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }
