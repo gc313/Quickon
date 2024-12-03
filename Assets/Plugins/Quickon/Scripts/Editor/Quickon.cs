@@ -16,6 +16,7 @@ namespace Quickon.Editor
         [SerializeField] private VisualTreeAsset postProcessingPanel;
         [SerializeField] private DataSourceSO dataSourceSO;
 
+        private InstallRequiredPackages installRequired;
         private CaptureHelper captureHelper;
         private CaptureObjSO captureObject;
         private CinemachineCamera camera;
@@ -30,19 +31,30 @@ namespace Quickon.Editor
         private Toggle previewToggle, transparentToggle;
         private Button previousPreviewButton, nextPreviewButton, autoCaptureButton, manualCaptureButton;
 
+        private VisualElement loadingPanel;
+        private Label loadingLabel;
+
         // 方法
         [MenuItem("Tools/Quickon")]
-        internal static void ShowExample()
+        internal static void ShowWindow()
         {
             // 显示Quickon窗口
             Quickon wnd = GetWindow<Quickon>();
             wnd.titleContent = new GUIContent("Quickon");
         }
 
-        private void OnEnable()
+        private async void OnEnable()
         {
             // 启用窗口时初始化
+            root = rootVisualElement;
+
             captureHelper = new CaptureHelper();
+            installRequired = new InstallRequiredPackages();
+            CreateLoadingPanel();
+
+            await installRequired.InstallPackages();
+            HideLoadingPanel();
+
             EditorApplication.update += UpdateCameraFromDataSource;
             EditorApplication.update += UpdateCameraPanel;
         }
@@ -54,11 +66,21 @@ namespace Quickon.Editor
             EditorApplication.update -= UpdateCameraPanel;
         }
 
+        private void CreateLoadingPanel()
+        {
+            loadingPanel = new VisualElement();
+            loadingLabel = new Label("Checking dependencies...");
+            loadingPanel.Add(loadingLabel);
+            root.Add(loadingPanel);
+        }
+
+        private void HideLoadingPanel()
+        {
+            loadingPanel.RemoveFromHierarchy();
+        }
+
         internal void CreateGUI()
         {
-            // 创建GUI界面
-            root = rootVisualElement;
-
             DrawCameraField();
             DrawImageSizeField();
             DrawPostPrecessingPanel();

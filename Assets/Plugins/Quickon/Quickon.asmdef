@@ -1,6 +1,22 @@
 {
-	"name": "Quickon",
-	"references": [
-		"Unity.Cinemachine"
-	]
+    "name": "Quickon",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Cinemachine"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "Select...",
+            "expression": "",
+            "define": ""
+        }
+    ],
+    "noEngineReferences": false
 }

@@ -26,7 +26,7 @@ namespace Quickon.Core
             mainCamera.clearFlags = CameraClearFlags.SolidColor;
             mainCamera.backgroundColor = Color.black;
 
-            string materialPath = "Shaders/TransparentBackground";
+            string materialPath = "Materials/NoneBackground";
             Material transparent = Resources.Load<Material>(materialPath);
 
             // 创建一个临时的RenderTexture来存储原始图像

@@ -4,7 +4,7 @@
         <engine:DropdownField label="Projection" choices="Orthographic,Perspective" index="0" name="CameraProjection" />
     </engine:VisualElement>
     <engine:VisualElement name="Orthographic" style="flex-grow: 0; height: 50px; align-self: auto;">
-        <engine:FloatField label="Orthographic Size" value="-360" max-length="6" name="OrthographicSize_Value" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" data-source-path="camera">
+        <engine:FloatField label="Orthographic Size" value="-360" max-length="1000" name="OrthographicSize_Value" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" data-source-path="camera">
             <Bindings>
                 <engine:DataBinding property="value" data-source-path="OrthographicSize" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
             </Bindings>
@@ -16,7 +16,7 @@
         </engine:Slider>
     </engine:VisualElement>
     <engine:VisualElement name="Perspective" style="flex-grow: 0; height: 50px; align-self: auto;">
-        <engine:FloatField label="Field Of View" value="-360" max-length="180" name="FieldOfView_Value" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" data-source-path="camera">
+        <engine:FloatField label="Field Of View" value="-360" max-length="1000" name="FieldOfView_Value" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" data-source-path="camera">
             <Bindings>
                 <engine:DataBinding property="value" data-source-path="FieldOfView" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
             </Bindings>
@@ -40,7 +40,7 @@
         </engine:Slider>
     </engine:VisualElement>
     <engine:VisualElement style="flex-grow: 0; height: 50px; align-self: auto; align-content: auto;">
-        <engine:FloatField value="-360" max-length="50" label="Vertical Axis" name="VerticalAxis_Value">
+        <engine:FloatField value="-360" max-length="180" label="Vertical Axis" name="VerticalAxis_Value">
             <Bindings>
                 <engine:DataBinding property="value" data-source-path="VerticalAxis" data-source="project://database/Assets/Plugins/Quickon/Scripts/Core/DataSource/DataSource.asset?fileID=11400000&amp;guid=98b7c5f44391987429e2c52b2aabdca6&amp;type=2#DataSource" binding-mode="TwoWay" update-trigger="EveryUpdate" />
             </Bindings>
