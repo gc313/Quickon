@@ -1,7 +1,6 @@
 # Quickon 使用说明
 
 Quickon 是一个 Unity 插件，用于对预制件进行批量拍摄并生成 PNG 图片，集成了自动拍照和手动拍照功能。
-</br>本插件采用了官方的 Cinemachine 包和 ShaderGraph 包，适用于 Unity 编辑器版本 6000.0.25 及以上。
 
 ## 功能概述
 

@@ -1,6 +1,6 @@
 # Quickon User Guide
 
-Quickon is a Unity plugin designed to batch-capture prefabs and generate PNG images. It integrates the official Cinemachine package and ShaderGraph package, and is compatible with Unity Editor version 6000.0.25 and above.
+Quickon is a Unity plugin designed to batch-capture prefabs and generate PNG images. 
 
 ## Feature Overview
 
