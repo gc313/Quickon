@@ -1,6 +1,6 @@
 # Quickon User Guide
 
-Quickon is a Unity plugin designed to batch-capture prefabs and generate PNG images. 
+Quickon is a Unity plugin designed to batch-capture prefabs and generate PNG images.
 
 ## Feature Overview
 
@@ -49,7 +49,3 @@ Import the Quickon plugin into your Unity project.
 ### 7. Output Path
 
 The default output path for images is: `Assets/Quickon_Output/`
-
-### 8. Version History
-
-- 0.1.0: Initial release, including basic automatic and manual capture functionalities.
