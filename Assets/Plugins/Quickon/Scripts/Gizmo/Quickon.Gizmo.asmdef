@@ -1,0 +1,17 @@
+{
+    "name": "Quickon.Gizmo",
+    "rootNamespace": "",
+    "references": [
+        "Quickon.Core",
+        "Qucikon.SO"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

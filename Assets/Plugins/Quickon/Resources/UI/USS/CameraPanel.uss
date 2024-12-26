@@ -1,0 +1,23 @@
+VisualElement > #VisualElement > .unity-float-field {
+    flex-grow: 1;
+}
+
+.unity-slider__input > #unity-drag-container > #unity-dragger {
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    border-bottom-left-radius: 50px;
+    margin-top: 0;
+}
+
+Slider {
+    flex-grow: 1;
+}
+
+#TargetOffset > .unity-vector3-field > .unity-vector3-field__input {
+    flex-direction: row;
+    justify-content: space-evenly;
+}

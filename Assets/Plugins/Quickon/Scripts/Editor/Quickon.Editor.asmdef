@@ -1,0 +1,19 @@
+{
+    "name": "Quickon.Editor",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Cinemachine",
+        "Quickon.Core",
+        "Quickon.Gizmo",
+        "Qucikon.SO"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
