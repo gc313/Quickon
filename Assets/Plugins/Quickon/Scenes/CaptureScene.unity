@@ -292,9 +292,9 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 10
-  orthographic: 1
-  orthographic size: 1
+  field of view: 15.2
+  orthographic: 0
+  orthographic size: 0.95
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -318,8 +318,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1346406283}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.3826835, y: 1.1293617e-10, z: -4.67797e-11, w: 0.9238795}
-  m_LocalPosition: {x: 0, y: 8.071068, z: -7.0710673}
+  m_LocalRotation: {x: -3.479143e-16, y: 0.115804, z: 4.0562773e-17, w: 0.9932721}
+  m_LocalPosition: {x: -2.3004975, y: 1, z: -9.731789}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -573,7 +573,7 @@ MonoBehaviour:
     SplineCurvature: 0.5
   RecenteringTarget: 2
   HorizontalAxis:
-    Value: 0
+    Value: 13.300003
     Center: 0
     Range: {x: -180, y: 180}
     Wrap: 1
@@ -583,7 +583,7 @@ MonoBehaviour:
       Time: 2
     Restrictions: 0
   VerticalAxis:
-    Value: 45
+    Value: 0
     Center: 17.5
     Range: {x: -10, y: 45}
     Wrap: 0
@@ -626,8 +626,8 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 10
-    OrthographicSize: 1
+    FieldOfView: 15.2
+    OrthographicSize: 0.95
     NearClipPlane: 0.1
     FarClipPlane: 5000
     Dutch: 0
@@ -653,8 +653,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1892388126}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.3826835, y: 1.1015406e-10, z: -4.0063123e-11, w: 0.92387956}
-  m_LocalPosition: {x: 0, y: 8.071068, z: -7.0710673}
+  m_LocalRotation: {x: -3.6636504e-16, y: 0.115803994, z: -1.1769274e-16, w: 0.9932721}
+  m_LocalPosition: {x: -2.3004975, y: 1, z: -9.731789}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
