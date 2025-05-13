@@ -82,27 +82,32 @@ namespace Quickon.Editor
 
         internal void CreateGUI()
         {
-            DrawCameraField();
-            DrawImageSizeField();
-            DrawPostPrecessingPanel();
-            DrawCaptureObjectList();
+            // 使用折叠面板包装每个区域
+            root.Add(WithFoldout("Camera Settings", DrawCameraField));
+            root.Add(WithFoldout("Image Size Settings", DrawImageSizeField));
+            root.Add(WithFoldout("Post-Processing Settings", DrawPostPrecessingPanel));
+            root.Add(WithFoldout("Capture Object List", DrawCaptureObjectList));
         }
 
-        private void DrawPostPrecessingPanel()
+        private VisualElement DrawPostPrecessingPanel()
         {
-            // 绘制后期处理面板
+            var container = new VisualElement();
+
             postPanelElement = postProcessingPanel.Instantiate();
-            root.Add(postPanelElement);
+            container.Add(postPanelElement);
 
             transparentToggle = postPanelElement.Q<Toggle>("RemoveBackground_Toggle");
             transparentToggle.RegisterCallback<ChangeEvent<bool>>(e => { Core.QuickonConfig.IsTransparent = e.newValue; });
+
+            return container;
         }
 
-        private void DrawImageSizeField()
+        private VisualElement DrawImageSizeField()
         {
-            // 绘制图像大小字段
+            var container = new VisualElement();
+
             mainElement = visualTreeAsset.Instantiate();
-            root.Add(mainElement);
+            container.Add(mainElement);
 
             previewToggle = mainElement.Q<Toggle>("Preview_Toggle");
             previousPreviewButton = mainElement.Q<Button>("Previous_Preview_Button");
@@ -110,7 +115,6 @@ namespace Quickon.Editor
             autoCaptureButton = mainElement.Q<Button>("AutoCapture_Button");
             manualCaptureButton = mainElement.Q<Button>("ManualCapture_Button");
 
-            // 监听控件值变化事件
             previewToggle.RegisterCallback<ChangeEvent<bool>>(e =>
             {
                 Core.QuickonConfig.IsPreview = e.newValue;
@@ -120,21 +124,24 @@ namespace Quickon.Editor
             nextPreviewButton.clicked += () => { captureHelper.NextObjectPreview(captureObject.CaptureObjects, Core.QuickonConfig.IsPreview); };
             autoCaptureButton.clicked += () => { captureHelper.PlaceObjectsAndCapture(captureObject.CaptureObjects); };
             manualCaptureButton.clicked += () => { captureHelper.CaptureImage(false); };
+
+            return container;
         }
 
-        private void DrawCameraField()
+        private VisualElement DrawCameraField()
         {
-            // 绘制相机字段
+            var container = new VisualElement();
+
             cameraField = new ObjectField("Camera")
             {
                 value = SetCaptureCamera()
             };
-            root.Add(cameraField);
+            container.Add(cameraField);
 
-            // 监听相机字段变化
             cameraField.RegisterCallback<ChangeEvent<GameObject>>(e => { RegisterCameraEvent(e.newValue); });
 
-            DrawCameraPanel();
+            container.Add(DrawCameraPanel());
+            return container;
         }
 
         private GameObject SetCaptureCamera()
@@ -196,9 +203,11 @@ namespace Quickon.Editor
             targetOffsetField.SetValueWithoutNotify(rotationComposer.TargetOffset);
         }
 
-        private void DrawCameraPanel()
+        private VisualElement DrawCameraPanel()
         {
-            // 绘制相机面板
+            // 创建一个容器来承载相机面板
+            var container = new VisualElement();
+
             isCameraOrthographic = Camera.main.orthographic;
             cameraPanelElement = cameraPanel.Instantiate();
             cameraProjection = cameraPanelElement.Q<DropdownField>("CameraProjection");
@@ -206,9 +215,13 @@ namespace Quickon.Editor
             perspectiveField = cameraPanelElement.Q<VisualElement>("Perspective");
             orthographicField = cameraPanelElement.Q<VisualElement>("Orthographic");
             CameraProjectionChoice();
-            root.Add(cameraPanelElement);
+
+            // 将面板添加到当前容器中
+            container.Add(cameraPanelElement);
 
             UpdateUIFromCamera();
+
+            return container;
         }
 
         private string CameraProjectionChoice(string arg)
@@ -266,14 +279,29 @@ namespace Quickon.Editor
             EditorUtility.SetDirty(rotationComposer);
         }
 
-        private void DrawCaptureObjectList()
+        private VisualElement DrawCaptureObjectList()
         {
-            // 绘制捕获对象列表
+            var container = new VisualElement();
+
             captureObject = CreateInstance<CaptureObjSO>();
             var inspectorElement = new InspectorElement();
             var serializedObject = new SerializedObject(captureObject);
             inspectorElement.Bind(serializedObject);
-            root.Add(inspectorElement);
+
+            // 直接将 inspectorElement 添加到 container，而不是使用 scrollView
+            container.Add(inspectorElement);
+
+            return container;
+        }
+
+        // 创建折叠面板
+        private VisualElement WithFoldout(string title, Func<VisualElement> contentGenerator)
+        {
+            var foldout = new Foldout { text = title, value = true };
+            foldout.Add(contentGenerator());
+            return foldout;
         }
     }
+
+
 }
