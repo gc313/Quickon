@@ -80,66 +80,61 @@ namespace Quickon.Editor
             loadingPanel.RemoveFromHierarchy();
         }
 
+        /// <summary>
+        /// 创建UI的主方法
+        /// </summary>
         internal void CreateGUI()
         {
-            DrawCameraField();
-            DrawImageSizeField();
-            DrawPostPrecessingPanel();
-            DrawCaptureObjectList();
+            // 使用折叠面板包装每个区域
+            root.Add(WithFoldout("Camera Settings", DrawCameraField));
+            root.Add(WithFoldout("Image Size Settings", DrawImageSizeField));
+            root.Add(WithFoldout("Post-Processing Settings", DrawPostPrecessingPanel));
+            root.Add(WithFoldout("Capture Object List", DrawCaptureObjectList));
         }
 
-        private void DrawPostPrecessingPanel()
+        #region Camera Settings
+        private VisualElement DrawCameraField()
         {
-            // 绘制后期处理面板
-            postPanelElement = postProcessingPanel.Instantiate();
-            root.Add(postPanelElement);
+            var container = new VisualElement();
 
-            transparentToggle = postPanelElement.Q<Toggle>("RemoveBackground_Toggle");
-            transparentToggle.RegisterCallback<ChangeEvent<bool>>(e => { Core.QuickonConfig.IsTransparent = e.newValue; });
-        }
-
-        private void DrawImageSizeField()
-        {
-            // 绘制图像大小字段
-            mainElement = visualTreeAsset.Instantiate();
-            root.Add(mainElement);
-
-            previewToggle = mainElement.Q<Toggle>("Preview_Toggle");
-            previousPreviewButton = mainElement.Q<Button>("Previous_Preview_Button");
-            nextPreviewButton = mainElement.Q<Button>("Next_Preview_Button");
-            autoCaptureButton = mainElement.Q<Button>("AutoCapture_Button");
-            manualCaptureButton = mainElement.Q<Button>("ManualCapture_Button");
-
-            // 监听控件值变化事件
-            previewToggle.RegisterCallback<ChangeEvent<bool>>(e =>
-            {
-                Core.QuickonConfig.IsPreview = e.newValue;
-                captureHelper.ToggleObjectPreview(captureObject.CaptureObjects, Core.QuickonConfig.IsPreview);
-            });
-            previousPreviewButton.clicked += () => { captureHelper.PreviousObjectPreview(captureObject.CaptureObjects, Core.QuickonConfig.IsPreview); };
-            nextPreviewButton.clicked += () => { captureHelper.NextObjectPreview(captureObject.CaptureObjects, Core.QuickonConfig.IsPreview); };
-            autoCaptureButton.clicked += () => { captureHelper.PlaceObjectsAndCapture(captureObject.CaptureObjects); };
-            manualCaptureButton.clicked += () => { captureHelper.CaptureImage(false); };
-        }
-
-        private void DrawCameraField()
-        {
-            // 绘制相机字段
             cameraField = new ObjectField("Camera")
             {
                 value = SetCaptureCamera()
             };
-            root.Add(cameraField);
+            container.Add(cameraField);
 
-            // 监听相机字段变化
             cameraField.RegisterCallback<ChangeEvent<GameObject>>(e => { RegisterCameraEvent(e.newValue); });
 
-            DrawCameraPanel();
+            container.Add(DrawCameraPanel());
+            return container;
         }
 
+        private VisualElement DrawCameraPanel()
+        {
+            // 创建一个容器来承载相机面板
+            var container = new VisualElement();
+
+            isCameraOrthographic = Camera.main.orthographic;
+            cameraPanelElement = cameraPanel.Instantiate();
+            cameraProjection = cameraPanelElement.Q<DropdownField>("CameraProjection");
+            cameraProjection.RegisterCallback<ChangeEvent<string>>(e => { CameraProjectionChoice(e.newValue); });
+            perspectiveField = cameraPanelElement.Q<VisualElement>("Perspective");
+            orthographicField = cameraPanelElement.Q<VisualElement>("Orthographic");
+            CameraProjectionChoice();
+
+            // 将面板添加到当前容器中
+            container.Add(cameraPanelElement);
+
+            UpdateUIFromCamera();
+
+            return container;
+        }
+
+        /// <summary>
+        /// 设置捕获相机
+        /// </summary>
         private GameObject SetCaptureCamera()
         {
-            // 设置捕获相机
             var newCamera = GameObject.FindWithTag("CaptureCamera");
             if (newCamera == null)
             {
@@ -156,9 +151,11 @@ namespace Quickon.Editor
             return newCamera;
         }
 
+        /// <summary>
+        /// 注册相机事件
+        /// </summary>
         private void RegisterCameraEvent(GameObject cameraObj)
         {
-            // 注册相机事件
             cinemachineCamera = cameraObj.GetComponent<CinemachineCamera>();
             orbitalFollow = cameraObj.GetComponent<CinemachineOrbitalFollow>();
             rotationComposer = cameraObj.GetComponent<CinemachineRotationComposer>();
@@ -168,9 +165,11 @@ namespace Quickon.Editor
             captureHelper.InitializeHelper(cameraObj, dataSourceSO);
         }
 
+        /// <summary>
+        /// 更新相机UI
+        /// </summary>
         private void UpdateUIFromCamera()
         {
-            // 从相机更新UI
             orthographicSizeField = cameraPanelElement.Q<FloatField>("OrthographicSize_Value");
             orthographicSlider = cameraPanelElement.Q<Slider>("OrthographicSize_Slider");
 
@@ -196,24 +195,11 @@ namespace Quickon.Editor
             targetOffsetField.SetValueWithoutNotify(rotationComposer.TargetOffset);
         }
 
-        private void DrawCameraPanel()
-        {
-            // 绘制相机面板
-            isCameraOrthographic = Camera.main.orthographic;
-            cameraPanelElement = cameraPanel.Instantiate();
-            cameraProjection = cameraPanelElement.Q<DropdownField>("CameraProjection");
-            cameraProjection.RegisterCallback<ChangeEvent<string>>(e => { CameraProjectionChoice(e.newValue); });
-            perspectiveField = cameraPanelElement.Q<VisualElement>("Perspective");
-            orthographicField = cameraPanelElement.Q<VisualElement>("Orthographic");
-            CameraProjectionChoice();
-            root.Add(cameraPanelElement);
-
-            UpdateUIFromCamera();
-        }
-
+        /// <summary>
+        /// 处理相机投影选择
+        /// </summary>
         private string CameraProjectionChoice(string arg)
         {
-            // 处理相机投影选择
             switch (arg)
             {
                 case Core.QuickonConfig.Orthographic:
@@ -226,17 +212,21 @@ namespace Quickon.Editor
             return "";
         }
 
+        /// <summary>
+        /// 更新相机面板
+        /// </summary>
         private void UpdateCameraPanel()
         {
-            // 更新相机面板
             isCameraOrthographic = Camera.main.orthographic;
             CameraProjectionChoice();
             cameraPanelElement.MarkDirtyRepaint();
         }
 
+        /// <summary>
+        /// 根据相机投影选择显示不同的UI元素
+        /// </summary>
         private void CameraProjectionChoice()
         {
-            // 根据相机投影选择显示不同的UI元素
             if (cinemachineCamera == null || orbitalFollow == null) return;
             if (isCameraOrthographic)
             {
@@ -252,9 +242,11 @@ namespace Quickon.Editor
             }
         }
 
+        /// <summary>
+        /// 从数据源更新相机设置
+        /// </summary>
         private void UpdateCameraFromDataSource()
         {
-            // 从数据源更新相机设置
             if (cinemachineCamera == null || orbitalFollow == null || dataSourceSO == null) return;
             cinemachineCamera.Lens.OrthographicSize = dataSourceSO.OrthographicSize;
             cinemachineCamera.Lens.FieldOfView = dataSourceSO.FieldOfView;
@@ -265,15 +257,79 @@ namespace Quickon.Editor
             EditorUtility.SetDirty(orbitalFollow);
             EditorUtility.SetDirty(rotationComposer);
         }
+        #endregion
 
-        private void DrawCaptureObjectList()
+        #region Image Size Settings
+        private VisualElement DrawImageSizeField()
         {
-            // 绘制捕获对象列表
+            var container = new VisualElement();
+
+            mainElement = visualTreeAsset.Instantiate();
+            container.Add(mainElement);
+
+            previewToggle = mainElement.Q<Toggle>("Preview_Toggle");
+            previousPreviewButton = mainElement.Q<Button>("Previous_Preview_Button");
+            nextPreviewButton = mainElement.Q<Button>("Next_Preview_Button");
+            autoCaptureButton = mainElement.Q<Button>("AutoCapture_Button");
+            manualCaptureButton = mainElement.Q<Button>("ManualCapture_Button");
+
+            previewToggle.RegisterCallback<ChangeEvent<bool>>(e =>
+            {
+                Core.QuickonConfig.IsPreview = e.newValue;
+                captureHelper.ToggleObjectPreview(captureObject.CaptureObjects, Core.QuickonConfig.IsPreview);
+            });
+            previousPreviewButton.clicked += () => { captureHelper.PreviousObjectPreview(captureObject.CaptureObjects, Core.QuickonConfig.IsPreview); };
+            nextPreviewButton.clicked += () => { captureHelper.NextObjectPreview(captureObject.CaptureObjects, Core.QuickonConfig.IsPreview); };
+            autoCaptureButton.clicked += () => { captureHelper.PlaceObjectsAndCapture(captureObject.CaptureObjects); };
+            manualCaptureButton.clicked += () => { captureHelper.CaptureImage(false); };
+
+            return container;
+        }
+        #endregion
+
+        #region Post-Processing Settings
+        private VisualElement DrawPostPrecessingPanel()
+        {
+            var container = new VisualElement();
+
+            postPanelElement = postProcessingPanel.Instantiate();
+            container.Add(postPanelElement);
+
+            transparentToggle = postPanelElement.Q<Toggle>("RemoveBackground_Toggle");
+            transparentToggle.RegisterCallback<ChangeEvent<bool>>(e => { Core.QuickonConfig.IsTransparent = e.newValue; });
+
+            return container;
+        }
+        #endregion
+
+        #region Capture Object List
+        private VisualElement DrawCaptureObjectList()
+        {
+            var container = new VisualElement();
+
             captureObject = CreateInstance<CaptureObjSO>();
             var inspectorElement = new InspectorElement();
             var serializedObject = new SerializedObject(captureObject);
             inspectorElement.Bind(serializedObject);
-            root.Add(inspectorElement);
+            container.Add(inspectorElement);
+
+            return container;
+        }
+        #endregion
+
+        /// <summary>
+        /// 创建折叠面板
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="contentGenerator"></param>
+        /// <returns></returns>
+        private VisualElement WithFoldout(string title, Func<VisualElement> contentGenerator)
+        {
+            var foldout = new Foldout { text = title, value = true };
+            foldout.Add(contentGenerator());
+            return foldout;
         }
     }
+
+
 }
